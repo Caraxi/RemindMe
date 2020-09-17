@@ -5,10 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Game.Chat;
-using Dalamud.Game.Chat.SeStringHandling;
-using Dalamud.Game.Chat.SeStringHandling.Payloads;
-using EasyHook;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using RemindMe.Config;
@@ -16,7 +12,6 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe
 {
-
     public class RemindMeConfig : IPluginConfiguration
     {
         [NonSerialized]
@@ -48,7 +43,7 @@ namespace RemindMe
         {
             bool drawConfig = true;
             ImGui.SetNextWindowSizeConstraints(new Vector2(400, 400), new Vector2(1200, 1200));
-            ImGui.Begin("Cooldown###cooldownMonitorSetup", ref drawConfig);
+            ImGui.Begin("Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig);
 
             ImGui.BeginTabBar("###remindMeConfigTabs");
 
@@ -290,13 +285,7 @@ namespace RemindMe
 
             }
 #endif
-
-
             ImGui.EndTabBar();
-
-
-            
-
             ImGui.End();
 
             return drawConfig;
