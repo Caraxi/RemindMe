@@ -3,7 +3,7 @@
         public uint ClassJob;
         public uint Status;
         public uint Action;
-
+        public float MaxDuration = 30;
 
         public override bool Equals(object obj) {
             if (!(obj is StatusMonitor sm)) return false;

@@ -8,6 +8,7 @@ using Dalamud.Data.LuminaExtensions;
 using Dalamud.Game.Internal;
 using Dalamud.Hooking;
 using Dalamud.Plugin;
+using ImGuiNET;
 using ImGuiScene;
 using JetBrains.Annotations;
 using Action = Lumina.Excel.GeneratedSheets.Action;
@@ -30,6 +31,10 @@ namespace RemindMe {
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate IntPtr GetActionCooldownSlotDelegate(IntPtr actionManager, int cooldownGroup);
 
+#if DEBUG
+        public List<ActionHistoryItem> ActionHistory = new List<ActionHistoryItem>();
+        public uint ActionHistoryLimit = 100;
+#endif
         internal TextureWrap GetActionIcon(Action action) {
             var iconTex = plugin.PluginInterface.Data.GetIcon(action.Icon);
             var tex = plugin.PluginInterface.UiBuilder.LoadImageRaw(iconTex.GetRgbaImageData(), iconTex.Header.Width, iconTex.Header.Height, 4);
@@ -50,10 +55,24 @@ namespace RemindMe {
 
             var getActionCooldownSlotScan = plugin.PluginInterface.TargetModuleScanner.ScanText("E8 ?? ?? ?? ?? 0F 57 FF 48 85 C0");
             getActionCooldownSlot = Marshal.GetDelegateForFunctionPointer<GetActionCooldownSlotDelegate>(getActionCooldownSlotScan);
+#if DEBUG
+            var startActionCooldownScan = plugin.PluginInterface.TargetModuleScanner.ScanText("E8 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? FF 50 18");
+            startCooldownHook = new Hook<StartCooldownDelegate>(startActionCooldownScan, new StartCooldownDelegate(StartCooldownDetour));
 
+            startCooldownHook.Enable();
+#endif
             plugin.PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
-
         }
+#if DEBUG
+        private IntPtr StartCooldownDetour(IntPtr actionManager, uint actionType, uint actionId) {
+            ActionHistory.Add(new ActionHistoryItem(actionId, plugin.PluginInterface.ClientState.Targets.CurrentTarget));
+            while (ActionHistory.Count > ActionHistoryLimit) {
+                ActionHistory.RemoveAt(0);
+            }
+            return startCooldownHook.Original(actionManager, actionType, actionId);
+        }
+#endif
+
 
         [CanBeNull]
         public Action GetAction(uint actionID) {
@@ -61,7 +80,6 @@ namespace RemindMe {
         }
 
         private void FrameworkOnOnUpdateEvent(Framework framework) {
-            PluginLog.Log($"Framework: {framework.Address.BaseAddress.ToInt64():X}");
             Update();
         }
 

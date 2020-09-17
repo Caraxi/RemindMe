@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 
 namespace RemindMe.Config {
@@ -18,12 +20,15 @@ namespace RemindMe.Config {
 
         public bool OnlyShowReady = false;
 
-        public int RowSize = 24;
+        public int RowSize = 32;
+        public float TextScale = 1;
 
         public bool ShowActionIcon = true;
-        public bool OnlyInCombat = false;
+        public bool OnlyInCombat = true;
 
         public bool ShowCountdown = false;
+
+        public bool PulseReady = false;
 
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
@@ -35,31 +40,37 @@ namespace RemindMe.Config {
         public List<StatusMonitor> StatusMonitors = new List<StatusMonitor>();
 
 
+        public Vector4 AbilityReadyColor = new Vector4(0.70f, 0.25f, 0.25f, 0.75f);
+        public Vector4 AbilityCooldownColor = new Vector4(0.75f, 0.125f, 0.665f, 0.75f);
+        public Vector4 StatusEffectColor = new Vector4(1f, 0.5f, 0.1f, 0.75f);
+        public Vector4 TextColor = new Vector4(1f, 1f, 1f, 1f);
+
+        [JsonIgnore] private bool tryDelete;
+        
+
         public void DrawConfigEditor(RemindMeConfig mainConfig, ref Guid? deletedMonitor) {
-            if (this.Cooldowns.Count > 0) {
-                ImGui.Text("Can't delete while contains actions");
-            } else {
-                if (ImGui.Button("Delete Display")) {
-                    deletedMonitor = this.Guid;
-                }
-            }
-
             if (ImGui.Checkbox($"Lock Display##{this.Guid}", ref this.Locked)) mainConfig.Save();
-            if (ImGui.Checkbox($"Only show ready##{this.Guid}", ref this.OnlyShowReady)) mainConfig.Save();
-            if (ImGui.Checkbox($"Only show while in combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
-            if (ImGui.Checkbox($"Show Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
-            if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
-            
-
-            if (ImGui.InputInt($"Bar Size##{this.Guid}", ref this.RowSize, 1, 5)) {
-                if (this.RowSize < 8) this.RowSize = 8;
-                mainConfig.Save();
-            }
-
-
+            ImGui.SameLine();
             ImGui.SetNextItemWidth(150);
-            if (ImGui.InputText($"Display Name###displayName{this.Guid}", ref this.Name, 32)) mainConfig.Save();
+            if (ImGui.InputText($"###displayName{this.Guid}", ref this.Name, 32)) mainConfig.Save();
+            ImGui.Separator();
+            ImGui.Text("Colours");
+            ImGui.Separator();
 
+            if (ImGui.ColorEdit4($"Ability Ready##{Guid}", ref AbilityReadyColor)) mainConfig.Save();
+            if (ImGui.ColorEdit4($"Ability Cooldown##{Guid}", ref AbilityCooldownColor)) mainConfig.Save();
+            if (ImGui.ColorEdit4($"Status Effect##{Guid}", ref StatusEffectColor)) mainConfig.Save();
+            if (ImGui.ColorEdit4($"Text##{Guid}", ref TextColor)) mainConfig.Save();
+
+            ImGui.Separator();
+            ImGui.Separator();
+            ImGui.Text("Display Options");
+            ImGui.Separator();
+            if (ImGui.Checkbox($"Only show while in combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
+            if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
+            if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
+            if (ImGui.Checkbox($"Pulse when ready##{this.Guid}", ref this.PulseReady)) mainConfig.Save();
+            ImGui.Separator();
             if (ImGui.Checkbox($"###limitDisplay{this.Guid}", ref this.LimitDisplayTime)) mainConfig.Save();
             ImGui.SameLine();
             ImGui.Text("Only show when below");
@@ -67,6 +78,42 @@ namespace RemindMe.Config {
             ImGui.SetNextItemWidth(90);
             if (ImGui.InputInt($"seconds##limitSeconds{this.Guid}", ref LimitDisplayTimeSeconds)) mainConfig.Save();
 
+            ImGui.Separator();
+            if (ImGui.InputInt($"Bar Height##{this.Guid}", ref this.RowSize, 1, 5)) {
+                if (this.RowSize < 8) this.RowSize = 8;
+                mainConfig.Save();
+            }if (ImGui.InputFloat($"Text Scale##{this.Guid}", ref this.TextScale, 0.01f, 0.1f)) {
+                if (this.RowSize < 8) this.RowSize = 8;
+                mainConfig.Save();
+            }
+            ImGui.Separator();
+
+
+            if (tryDelete) {
+
+                ImGui.Text("Delete this monitor?");
+                ImGui.SameLine();
+                if (ImGui.Button("Don't Delete")) tryDelete = false;
+                ImGui.SameLine();
+                ImGui.PushStyleColor(ImGuiCol.Button, 0x88000088);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99000099);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAA0000AA);
+                if (ImGui.Button("Delete this display")) deletedMonitor = Guid;
+                ImGui.PopStyleColor(3);
+
+            } else {
+                ImGui.PushStyleColor(ImGuiCol.Button, 0x88000088);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99000099);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAA0000AA);
+                if (ImGui.Button("Delete this display")) {
+                    tryDelete = true;
+                }
+                ImGui.PopStyleColor(3);
+            }
+
+            
+
+            ImGui.Separator();
 
         }
 

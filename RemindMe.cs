@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Plugin;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe
@@ -18,17 +20,18 @@ namespace RemindMe
 
         public ActionManager ActionManager; 
         
-
         private bool drawConfigWindow = false;
 
         public List<Action> ActionList;
 
+        public IconManager IconManager;
 
         public void Dispose()
         {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
             ActionManager?.Dispose();
+            IconManager?.Dispose();
             RemoveCommands();
         }
 
@@ -39,6 +42,8 @@ namespace RemindMe
             this.PluginInterface = pluginInterface;
             this.PluginConfig = (RemindMeConfig)pluginInterface.GetPluginConfig() ?? new RemindMeConfig();
             this.PluginConfig.Init(this, pluginInterface);
+            
+            IconManager = new IconManager(pluginInterface);
             ActionList = PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction).ToList();
 
             actionManagerStatic = pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("48 89 05 ?? ?? ?? ?? C3 CC C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 48 8D 0D ?? ?? ?? ?? E9 ?? ?? ?? ??");
@@ -48,6 +53,7 @@ namespace RemindMe
             pluginInterface.UiBuilder.OnOpenConfigUi += OnOpenConfigUi;
             
             PluginInterface.UiBuilder.OnBuildUi += this.BuildUI;
+
 
             SetupCommands();
         }
@@ -96,6 +102,9 @@ namespace RemindMe
                     flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
                 }
 
+                ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
+                ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
+
                 ImGui.Begin($"Display##{display.Guid}", flags);
                 if (!display.Locked) {
                     ImGui.PopStyleColor();
@@ -110,93 +119,127 @@ namespace RemindMe
                         if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
                         var action = ActionManager.GetAction(cd.ActionId);
                         if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
+                        if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
                         var cooldown = ActionManager.GetActionCooldown(action);
                         if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
                         if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
                         return true;
                     })) {
                         var action = ActionManager.GetAction(cd.ActionId);
+                        
                         if (action != null) {
                             var cooldown = ActionManager.GetActionCooldown(action);
                             TimerList.Add(new DisplayTimer {
                                 TimerMax = cooldown.CooldownTotal,
-                                TimerCurrent = cooldown.CooldownElapsed,
-                                FinishedColor = new Vector4(0.70f, 0.25f, 0.25f, 0.75f),
-                                ProgressColor = new Vector4(0.75f, 0.125f, 0.665f, 1),
+                                TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
+                                FinishedColor = display.AbilityReadyColor,
+                                ProgressColor = display.AbilityCooldownColor,
                                 IconId = action.Icon,
                                 Name = action.Name
                             });
                         }
                     }
 
-                    foreach (var cd in display.Cooldowns.Where(cd => {
-                        if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                        var action = ActionManager.GetAction(cd.ActionId);
-                        if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
-                        var cooldown = ActionManager.GetActionCooldown(action);
-                        if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
-                        if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
+                    foreach (var sd in display.StatusMonitors.Where(sm => {
+                        if (sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
                         return true;
-                    }).OrderBy((cd) => {
-                        var action = ActionManager.GetAction(cd.ActionId);
-                        var cooldown = ActionManager.GetActionCooldown(action);
-                        var ret = cooldown.IsOnCooldown ? cooldown.CountdownTicks : cooldown.CompleteForTicks;
-                        return ret;
-                    }).ThenBy(cd => cd.ActionId)) {
+                    })) {
+                        var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
+                        var action = ActionManager.GetAction(sd.Action);
 
-                        var action = ActionManager.GetAction(cd.ActionId);
-                        var cooldown = ActionManager.GetActionCooldown(action);
+                        foreach (var a in PluginInterface.ClientState.Actors) {
+                            if (a != null) {
+                                foreach (var se in a.StatusEffects) {
+                                    if (se.EffectId == (short) status.RowId) {
+
+                                        if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
+
+                                        TimerList.Add(new DisplayTimer {
+                                            TimerMax = sd.MaxDuration,
+                                            TimerCurrent = sd.MaxDuration - se.Duration,
+                                            FinishedColor = display.AbilityReadyColor,
+                                            ProgressColor = display.StatusEffectColor,
+                                            IconId = action.Icon,
+                                            Name = $"{action.Name} on {a.Name}"
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (var timer in TimerList.OrderBy(t => t.SortTimer).ThenBy(t => t.Name)) {
                         
-                        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, new Vector4(0.75f, 0.125f, 0.665f, 1));
+                        ImGui.PushStyleColor(ImGuiCol.PlotHistogram, timer.ProgressColor);
 
-                        if (!cooldown.IsOnCooldown) {
-                            var s = Math.Abs((cooldown.CompleteFor - (float) Math.Floor(cooldown.CompleteFor) - 0.5f) / 2);
-                            ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.70f + s, 0.25f, 0.25f, 0.75f));
+                        if (timer.IsComplete) {
+
+                            if (display.PulseReady) {
+                                var s = Math.Abs((Math.Abs(timer.TimerRemaining) - (float)Math.Floor(Math.Abs(timer.TimerRemaining)) - 0.5f) / 2);
+
+                                if (timer.FinishedColor.W < 0.75) {
+                                    ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor + new Vector4(0, 0, 0, s));
+                                } else {
+                                    ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor - new Vector4(0, 0, 0, s));
+                                }
+
+                                
+
+                            } else {
+                                ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor);
+                            }
+                            
+                            
+                            
                         }
 
-                        var size = ImGui.CalcTextSize(action.Name);
+                        ImGui.SetWindowFontScale(display.TextScale);
+
+                        var size = ImGui.CalcTextSize(timer.Name);
                         var cPosY = ImGui.GetCursorPosY();
 
-                        var fraction = cooldown.CooldownFraction;
+                        var fraction = timer.TimerFractionComplete;
 
-                        if (display.LimitDisplayTime && cooldown.CooldownTotal > display.LimitDisplayTimeSeconds) {
-                            fraction = (display.LimitDisplayTimeSeconds - cooldown.Countdown) / display.LimitDisplayTimeSeconds;
+                        if (display.LimitDisplayTime && timer.TimerMax > display.LimitDisplayTimeSeconds) {
+                            fraction = (display.LimitDisplayTimeSeconds - timer.TimerRemaining) / display.LimitDisplayTimeSeconds;
                         }
-
-
 
                         ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
                            
                         ImGui.BeginGroup();
                             
                         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetStyle().FramePadding.X);
+                        
                         if (display.ShowActionIcon) {
                             ImGui.SetCursorPosY(cPosY + ImGui.GetStyle().FramePadding.X);
                                 
-                            if (cooldown.ActionIconTexture != null) {
-                                ImGui.Image(cooldown.ActionIconTexture.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                            if (timer.IconId > 0) {
+                                var icon = IconManager.GetIconTexture(timer.IconId);
+                                if (icon != null) {
+                                    ImGui.Image(icon.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                                }
                             }
                             ImGui.SameLine();
                         }
+                        
                         ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
-                        ImGui.Text($"{action.Name}");
+                        ImGui.TextColored(display.TextColor, $"{timer.Name}");
 
-                        if (display.ShowCountdown && cooldown.IsOnCooldown) {
-                            var countdownText = (cooldown.IsOnCooldown ? cooldown.Countdown : cooldown.CompleteForTicks).ToString("F1");
+                        if (display.ShowCountdown && !timer.IsComplete) {
+                            var countdownText = timer.TimerRemaining.ToString("F1");
                             var countdownSize = ImGui.CalcTextSize(countdownText);
 
                             ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - countdownSize.Y / 2f));
                             ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (countdownSize.X + ImGui.GetStyle().WindowPadding.X + ImGui.GetStyle().FramePadding.X));
 
-                            ImGui.Text(countdownText);
+                            ImGui.TextColored(display.TextColor, countdownText);
                         }
-
 
                         ImGui.EndGroup();
 
                         ImGui.SetCursorPosY(cPosY + display.RowSize + ImGui.GetStyle().ItemSpacing.Y);
 
-                        if (!cooldown.IsOnCooldown) {
+                        if (timer.IsComplete) {
                             ImGui.PopStyleColor();
                         }
 

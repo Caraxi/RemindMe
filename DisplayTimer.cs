@@ -14,8 +14,13 @@ namespace RemindMe {
 
         public float TimerRemaining => TimerMax - TimerCurrent;
 
+        public int SortTimer => (int) TimerRemaining * 10;
+
+
         public float TimerFractionComplete => TimerCurrent / TimerMax;
         public float TimerFractionRemaining => 1 - TimerFractionComplete;
+
+        public bool IsComplete => TimerCurrent >= TimerMax;
 
     }
 }
