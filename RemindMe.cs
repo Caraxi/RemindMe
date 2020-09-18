@@ -108,6 +108,7 @@ namespace RemindMe {
                             if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
                             if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
                             if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
+                            if (display.LimitDisplayReadyTime && cooldown.CompleteFor > display.LimitDisplayReadyTimeSeconds) return false;
                             return true;
                         })) {
                             var action = ActionManager.GetAction(cd.ActionId);

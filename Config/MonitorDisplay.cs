@@ -35,6 +35,9 @@ namespace RemindMe.Config {
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
 
+        public bool LimitDisplayReadyTime;
+        public int LimitDisplayReadyTimeSeconds = 15;
+
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None)]
         public List<CooldownMonitor> Cooldowns = new List<CooldownMonitor>();
 
@@ -88,6 +91,13 @@ namespace RemindMe.Config {
             ImGui.SameLine();
             ImGui.SetNextItemWidth(90);
             if (ImGui.InputInt($"seconds##limitSeconds{this.Guid}", ref LimitDisplayTimeSeconds)) mainConfig.Save();
+
+            if (ImGui.Checkbox($"###limitDisplayReady{this.Guid}", ref this.LimitDisplayReadyTime)) mainConfig.Save();
+            ImGui.SameLine();
+            ImGui.Text("Don't show ready abilities after");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(90);
+            if (ImGui.InputInt($"seconds##limitReadySeconds{this.Guid}", ref LimitDisplayReadyTimeSeconds)) mainConfig.Save();
 
             ImGui.Separator();
             if (ImGui.InputInt($"Bar Height##{this.Guid}", ref this.RowSize, 1, 5)) {
