@@ -162,9 +162,17 @@ namespace RemindMe {
                     }
                 }
 
+                TimerList.Sort((a, b) => {
+                    var diff = a.TimerRemaining - b.TimerRemaining;
+                    if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
+                    if (diff < 0) return -1;
+                    return 1;
+                });
+
+
                 if (TimerList.Count > 0) {
 
-                    foreach (var timer in TimerList.OrderBy(t => t.SortTimer).ThenBy(t => t.Name)) {
+                    foreach (var timer in TimerList) {
                         ImGui.PushStyleColor(ImGuiCol.PlotHistogram, timer.ProgressColor);
                         if (timer.IsComplete) {
 
