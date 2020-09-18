@@ -94,83 +94,95 @@ namespace RemindMe {
                     flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
                 }
 
-                ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
-                ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
-
-                ImGui.Begin($"Display##{display.Guid}", flags);
-                if (!display.Locked) {
-                    ImGui.PopStyleColor();
-                    ImGui.PopStyleVar();
-                }
                 var TimerList = new List<DisplayTimer>();
-                if (display.Cooldowns.Count > 0) {
 
-                    foreach (var cd in display.Cooldowns.Where(cd => {
-                        if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                        var action = ActionManager.GetAction(cd.ActionId);
-                        if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
-                        if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
-                        var cooldown = ActionManager.GetActionCooldown(action);
-                        if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
-                        if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
-                        if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
-                        return true;
-                    })) {
-                        var action = ActionManager.GetAction(cd.ActionId);
+                try {
+                    if (display.Cooldowns.Count > 0) {
 
-                        if (action != null) {
+                        foreach (var cd in display.Cooldowns.Where(cd => {
+                            if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
+                            var action = ActionManager.GetAction(cd.ActionId);
+                            if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
+                            if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
                             var cooldown = ActionManager.GetActionCooldown(action);
-                            TimerList.Add(new DisplayTimer {
-                                TimerMax = cooldown.CooldownTotal,
-                                TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
-                                FinishedColor = display.AbilityReadyColor,
-                                ProgressColor = display.AbilityCooldownColor,
-                                IconId = action.Icon,
-                                Name = action.Name
-                            });
+                            if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
+                            if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
+                            if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
+                            return true;
+                        })) {
+                            var action = ActionManager.GetAction(cd.ActionId);
+
+                            if (action != null) {
+                                var cooldown = ActionManager.GetActionCooldown(action);
+                                TimerList.Add(new DisplayTimer {
+                                    TimerMax = cooldown.CooldownTotal,
+                                    TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
+                                    FinishedColor = display.AbilityReadyColor,
+                                    ProgressColor = display.AbilityCooldownColor,
+                                    IconId = action.Icon,
+                                    Name = action.Name
+                                });
+                            }
                         }
                     }
+                } catch (Exception ex) {
+                    PluginLog.LogError("Error parsing cooldowns.");
+                    PluginLog.Log(ex.ToString());
                 }
 
-                if (display.StatusMonitors.Count > 0) {
+                try {
+                    if (display.StatusMonitors.Count > 0) {
 
-                    foreach (var sd in display.StatusMonitors.Where(sm => {
-                        if (sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                        return true;
-                    })) {
-                        var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
-                        var action = ActionManager.GetAction(sd.Action);
+                        foreach (var sd in display.StatusMonitors.Where(sm => {
+                            if (sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
+                            return true;
+                        })) {
+                            var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
+                            var action = ActionManager.GetAction(sd.Action);
 
-                        foreach (var a in PluginInterface.ClientState.Actors) {
-                            if (a != null) {
-                                foreach (var se in a.GetStatusEffects()) {
-                                    if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                                    if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
-                                    if (se.EffectId == (short)status.RowId) {
-                                        TimerList.Add(new DisplayTimer {
-                                            TimerMax = sd.MaxDuration,
-                                            TimerCurrent = sd.MaxDuration - se.Duration,
-                                            FinishedColor = display.AbilityReadyColor,
-                                            ProgressColor = display.StatusEffectColor,
-                                            IconId = action.Icon,
-                                            Name = $"{action.Name} on {a.Name}"
-                                        });
+                            foreach (var a in PluginInterface.ClientState.Actors) {
+                                if (a != null) {
+                                    foreach (var se in a.GetStatusEffects()) {
+                                        if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
+                                        if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
+                                        if (se.EffectId == (short) status.RowId) {
+                                            TimerList.Add(new DisplayTimer {
+                                                TimerMax = sd.MaxDuration,
+                                                TimerCurrent = sd.MaxDuration - se.Duration,
+                                                FinishedColor = display.AbilityReadyColor,
+                                                ProgressColor = display.StatusEffectColor,
+                                                IconId = action.Icon,
+                                                Name = $"{action.Name} on {a.Name}"
+                                            });
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Exception ex) {
+                    PluginLog.LogError("Error parsing statuses.");
+                    PluginLog.Log(ex.ToString());
                 }
 
-                TimerList.Sort((a, b) => {
-                    var diff = a.TimerRemaining - b.TimerRemaining;
-                    if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
-                    if (diff < 0) return -1;
-                    return 1;
-                });
-
-
                 if (TimerList.Count > 0) {
+
+                    TimerList.Sort((a, b) => {
+                        var diff = a.TimerRemaining - b.TimerRemaining;
+                        if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
+                        if (diff < 0) return -1;
+                        return 1;
+                    });
+
+                    ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
+                    ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
+
+                    ImGui.Begin($"Display##{display.Guid}", flags);
+                    if (!display.Locked) {
+                        ImGui.PopStyleColor();
+                        ImGui.PopStyleVar();
+                    }
+
 
                     foreach (var timer in TimerList) {
                         ImGui.PushStyleColor(ImGuiCol.PlotHistogram, timer.ProgressColor);
@@ -247,9 +259,11 @@ namespace RemindMe {
 
                         ImGui.PopStyleColor();
                     }
+
+                    ImGui.End();
                 }
 
-                ImGui.End();
+                
             }
         }
 
