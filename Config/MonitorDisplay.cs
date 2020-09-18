@@ -8,6 +8,11 @@ namespace RemindMe.Config {
 
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
     public class MonitorDisplay {
+        private static readonly string[] _displayTypes = new string[] {
+            "Horizontal (Top to Bottom)",
+            "Horizontal (Bottom to Top)",
+        };
+
         public bool Enabled = false;
         public Guid Guid;
         public string Name = "New Display";
@@ -46,6 +51,8 @@ namespace RemindMe.Config {
         public Vector4 StatusEffectColor = new Vector4(1f, 0.5f, 0.1f, 0.75f);
         public Vector4 TextColor = new Vector4(1f, 1f, 1f, 1f);
 
+        public int DisplayType = 0;
+
         [JsonIgnore] private bool tryDelete;
         
 
@@ -54,6 +61,9 @@ namespace RemindMe.Config {
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputText($"###displayName{this.Guid}", ref this.Name, 32)) mainConfig.Save();
+            ImGui.Separator();
+            if (ImGui.Combo("Display Type", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
+            ImGui.Separator();
             ImGui.Separator();
             ImGui.Text("Colours");
             ImGui.Separator();
