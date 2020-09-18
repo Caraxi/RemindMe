@@ -11,6 +11,8 @@ namespace RemindMe.Config {
         private static readonly string[] _displayTypes = new string[] {
             "Horizontal (Top to Bottom)",
             "Horizontal (Bottom to Top)",
+            "Vertical (Left to Right)",
+            "Vertical (Right to Left)",
         };
 
         public bool Enabled = false;
@@ -32,7 +34,6 @@ namespace RemindMe.Config {
         public bool ShowCountdownReady = false;
 
         public bool PulseReady = false;
-
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
 
@@ -50,6 +51,7 @@ namespace RemindMe.Config {
         public Vector4 AbilityCooldownColor = new Vector4(0.75f, 0.125f, 0.665f, 0.75f);
         public Vector4 StatusEffectColor = new Vector4(1f, 0.5f, 0.1f, 0.75f);
         public Vector4 TextColor = new Vector4(1f, 1f, 1f, 1f);
+        public Vector4 BarBackgroundColor = new Vector4(0.3f, 0.3f, 0.3f, 0.5f);
 
         public int DisplayType = 0;
 
@@ -71,6 +73,7 @@ namespace RemindMe.Config {
             if (ImGui.ColorEdit4($"Ability Ready##{Guid}", ref AbilityReadyColor)) mainConfig.Save();
             if (ImGui.ColorEdit4($"Ability Cooldown##{Guid}", ref AbilityCooldownColor)) mainConfig.Save();
             if (ImGui.ColorEdit4($"Status Effect##{Guid}", ref StatusEffectColor)) mainConfig.Save();
+            if (ImGui.ColorEdit4($"Bar Background##{Guid}", ref BarBackgroundColor)) mainConfig.Save();
             if (ImGui.ColorEdit4($"Text##{Guid}", ref TextColor)) mainConfig.Save();
 
             ImGui.Separator();
