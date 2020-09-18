@@ -11,7 +11,7 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 namespace RemindMe {
 
     public class RemindMe : IDalamudPlugin {
-        public string Name => "RemindMe";
+        public string Name => "Remind Me";
         public DalamudPluginInterface PluginInterface { get; private set; }
         public RemindMeConfig PluginConfig { get; private set; }
 
