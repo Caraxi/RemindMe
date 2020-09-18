@@ -3,7 +3,7 @@
   "Name": "RemindMe",
   "Description": "",
   "InternalName": "RemindMe",
-  "AssemblyVersion": "0.0.1.0",
+  "AssemblyVersion": "0.0.1.2",
   "RepoUrl": "https://github.com/Caraxi/RemindMe",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 1

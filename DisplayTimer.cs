@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace RemindMe {
     internal class DisplayTimer {
@@ -14,7 +15,7 @@ namespace RemindMe {
 
         public float TimerRemaining => TimerMax - TimerCurrent;
 
-        public int SortTimer => (int) TimerRemaining * 10;
+        public int SortTimer => (int) (TimerRemaining * 10);
 
 
         public float TimerFractionComplete => TimerCurrent / TimerMax;

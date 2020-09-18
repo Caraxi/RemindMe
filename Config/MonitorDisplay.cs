@@ -19,6 +19,7 @@ namespace RemindMe.Config {
         public bool Locked = false;
 
         public bool OnlyShowReady = false;
+        public bool OnlyShowCooldown = false;
 
         public int RowSize = 32;
         public float TextScale = 1;
@@ -27,6 +28,7 @@ namespace RemindMe.Config {
         public bool OnlyInCombat = true;
 
         public bool ShowCountdown = false;
+        public bool ShowCountdownReady = false;
 
         public bool PulseReady = false;
 
@@ -67,8 +69,17 @@ namespace RemindMe.Config {
             ImGui.Text("Display Options");
             ImGui.Separator();
             if (ImGui.Checkbox($"Only show while in combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
+            if (ImGui.Checkbox($"Don't show complete cooldowns##{this.Guid}", ref this.OnlyShowCooldown)) {
+                OnlyShowReady = false;
+                mainConfig.Save();
+            }
+            if (ImGui.Checkbox($"Only show complete cooldowns##{this.Guid}", ref this.OnlyShowReady)) {
+                OnlyShowCooldown = false;
+                mainConfig.Save();
+            }
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
+            if (ShowCountdown && ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
             if (ImGui.Checkbox($"Pulse when ready##{this.Guid}", ref this.PulseReady)) mainConfig.Save();
             ImGui.Separator();
             if (ImGui.Checkbox($"###limitDisplay{this.Guid}", ref this.LimitDisplayTime)) mainConfig.Save();
