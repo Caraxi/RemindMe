@@ -335,8 +335,10 @@ namespace RemindMe {
                     ImGui.SameLine();
                 }
 
-                ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
-                ImGui.TextColored(display.TextColor, $"{timer.Name}");
+                if (display.ShowSkillName) {
+                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
+                    ImGui.TextColored(display.TextColor, $"{timer.Name}");
+                }
 
                 if (display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
                     var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");

@@ -29,7 +29,7 @@ namespace RemindMe.Config {
 
         public bool ShowActionIcon = true;
         public bool OnlyInCombat = true;
-
+        public bool ShowSkillName = true;
         public bool ShowCountdown = false;
         public bool ShowCountdownReady = false;
 
@@ -90,6 +90,7 @@ namespace RemindMe.Config {
                 mainConfig.Save();
             }
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
+            if (DisplayType < 2 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown && ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
             if (ImGui.Checkbox($"Pulse when ready##{this.Guid}", ref this.PulseReady)) mainConfig.Save();
