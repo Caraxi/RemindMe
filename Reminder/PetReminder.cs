@@ -11,7 +11,7 @@ namespace RemindMe.Reminder {
     internal class PetReminder : GeneralReminder {
         private readonly uint[] petJobs = {26, 27, 28};
 
-        private readonly Dictionary<uint, uint> PetIcons = new Dictionary<uint, uint>() {
+        private readonly Dictionary<uint, uint> petIcons = new Dictionary<uint, uint>() {
             { 26, 165 },
             { 27, 170 },
             { 28, 17216 },
@@ -35,7 +35,7 @@ namespace RemindMe.Reminder {
 
         public override ushort GetIconID(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             try {
-                var action = pluginInterface.Data.Excel.GetSheet<Action>().GetRow(PetIcons[pluginInterface.ClientState.LocalPlayer.ClassJob.Id]);
+                var action = pluginInterface.Data.Excel.GetSheet<Action>().GetRow(petIcons[pluginInterface.ClientState.LocalPlayer.ClassJob.Id]);
                 return action.Icon;
             } catch {
                 return 0;
