@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Plugin;
@@ -25,16 +26,19 @@ namespace RemindMe {
 
         public IconManager IconManager;
 
+        private Stopwatch generalStopwatch = new Stopwatch();
+
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
             ActionManager?.Dispose();
             IconManager?.Dispose();
+            generalStopwatch.Stop();
             RemoveCommands();
         }
 
         public void Initialize(DalamudPluginInterface pluginInterface) {
-
+            generalStopwatch.Start();
             drawConfigWindow = true;
 
             this.PluginInterface = pluginInterface;
@@ -72,6 +76,22 @@ namespace RemindMe {
 
         public void RemoveCommands() {
             PluginInterface.CommandManager.RemoveHandler("/remindme");
+        }
+
+        private void TextShadowed(string text, Vector4 foregroundColor, Vector4 shadowColor, byte shadowWidth = 1) {
+            var x = ImGui.GetCursorPosX();
+            var y = ImGui.GetCursorPosY();
+
+            for (var i = -shadowWidth; i < shadowWidth; i++) {
+                for (var j = -shadowWidth; j < shadowWidth; j++) {
+                    ImGui.SetCursorPosX(x + i);
+                    ImGui.SetCursorPosY(y + j);
+                    ImGui.TextColored(shadowColor, text);
+                }
+            }
+            ImGui.SetCursorPosX(x);
+            ImGui.SetCursorPosY(y);
+            ImGui.TextColored(foregroundColor, text);
         }
 
         private void DrawDisplays() {
@@ -162,13 +182,28 @@ namespace RemindMe {
                     PluginLog.Log(ex.ToString());
                 }
 
+                TimerList.Sort((a, b) => {
+                    var diff = a.TimerRemaining - b.TimerRemaining;
+                    if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
+                    if (diff < 0) return -1;
+                    return 1;
+                });
+
+                foreach (var reminder in display.GeneralReminders) {
+                    if (reminder.ShouldShow(PluginInterface, this, display)) {
+                        TimerList.Insert(0, new DisplayTimer {
+                            TimerMax = 1,
+                            TimerCurrent = 1 + generalStopwatch.ElapsedMilliseconds / 1000f,
+                            FinishedColor = display.AbilityReadyColor,
+                            ProgressColor = display.StatusEffectColor,
+                            IconId = reminder.GetIconID(PluginInterface, this, display),
+                            Name = reminder.GetText(PluginInterface, this, display),
+                            AllowCountdown = false
+                        });
+                    }
+                }
+
                 if (TimerList.Count > 0 || !display.Locked) {
-                    TimerList.Sort((a, b) => {
-                        var diff = a.TimerRemaining - b.TimerRemaining;
-                        if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
-                        if (diff < 0) return -1;
-                        return 1;
-                    });
 
                     ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
                     ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
@@ -194,6 +229,10 @@ namespace RemindMe {
                             DrawDisplayVertical(display, TimerList);
                             break;
                         }
+                        case 4: {
+                            DrawDisplayIcons(display, TimerList);
+                            break;
+                        }
                         default: {
                             display.DisplayType = 0;
                             DrawDisplayHorizontal(display, TimerList);
@@ -206,20 +245,87 @@ namespace RemindMe {
             }
         }
 
+        private void DrawDisplayIcons(MonitorDisplay display, List<DisplayTimer> timerList) {
+            var sPosX = ImGui.GetCursorPosX();
+            ImGui.SetWindowFontScale(display.TextScale);
+            foreach (var timer in timerList) {
+                var cPosX = ImGui.GetCursorPosX();
+                var cPosY = ImGui.GetCursorPosY();
+                var fraction = timer.TimerFractionComplete;
+                ImGui.BeginGroup();
+
+                var drawList = ImGui.GetWindowDrawList();
+
+                var barTopLeft = ImGui.GetCursorScreenPos();
+                var barBottomRight = ImGui.GetCursorScreenPos() + new Vector2(display.RowSize);
+
+                var barSize = barBottomRight - barTopLeft;
+
+                var barFractionCompleteSize = new Vector2(0, barSize.Y * (1 - fraction));
+                var barFractionIncompleteSize = new Vector2(0, barSize.Y * fraction);
+
+                if (timer.IsComplete) {
+                    var finishedColor = Vector4.Zero + timer.FinishedColor;
+                    var s = Math.Abs((Math.Abs(timer.TimerRemaining) - (float)Math.Floor(Math.Abs(timer.TimerRemaining)) - 0.5f) / 2);
+                    if (timer.FinishedColor.W < 0.75) {
+                        finishedColor += new Vector4(0, 0, 0, s);
+                    } else {
+                        finishedColor -= new Vector4(0, 0, 0, s);
+                    }
+                    drawList.AddRectFilled(barTopLeft, barBottomRight, ImGui.GetColorU32(finishedColor));
+                } else {
+                    drawList.AddRectFilled(barTopLeft, barBottomRight - barFractionCompleteSize, ImGui.GetColorU32(display.BarBackgroundColor));
+                    drawList.AddRectFilled(barTopLeft + barFractionIncompleteSize, barBottomRight, ImGui.GetColorU32(timer.ProgressColor));
+                }
+
+                if (display.ShowActionIcon && timer.IconId > 0) {
+                    ImGui.SetCursorPosY(cPosY + barSize.Y + ImGui.GetStyle().FramePadding.Y - display.RowSize);
+                    ImGui.SetCursorPosX(cPosX + ImGui.GetStyle().FramePadding.X);
+                    var icon = IconManager.GetIconTexture(timer.IconId);
+                    if (icon != null) {
+                        ImGui.Image(icon.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                    }
+                }
+
+                if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
+                    var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
+                    var countdownSize = ImGui.CalcTextSize(countdownText);
+                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (countdownSize.Y / 2));
+                    ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (countdownSize.X / 2));
+                    
+                    // ImGui.TextColored(display.TextColor, countdownText);
+                    TextShadowed(countdownText, display.TextColor, new Vector4(0, 0, 0, 1), 2);
+                }
+
+                ImGui.EndGroup();
+
+
+                var newX = cPosX + display.RowSize + display.BarSpacing;
+                var newY = cPosY;
+                if (newX > ImGui.GetWindowWidth() - display.RowSize + display.BarSpacing) {
+                    newX = sPosX;
+                    newY = cPosY + display.RowSize + display.BarSpacing;
+                }
+
+                ImGui.SetCursorPosX(newX);
+                ImGui.SetCursorPosY(newY);
+            }
+        }
+
         private unsafe void DrawDisplayVertical(MonitorDisplay display, List<DisplayTimer> timerList) {
             var rightToLeft = display.DisplayType == 3;
 
             if (rightToLeft) {
                 ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize + ImGui.GetStyle().WindowPadding.X));
             }
-
+            ImGui.SetWindowFontScale(display.TextScale);
             foreach (var timer in timerList) {
                 var cPosX = ImGui.GetCursorPosX();
                 var cPosY = ImGui.GetCursorPosY();
                 var fraction = timer.TimerFractionComplete;
 
                 ImGui.BeginGroup();
-
+                
                 var drawList = ImGui.GetWindowDrawList();
 
                 var barTopLeft = ImGui.GetCursorScreenPos();
@@ -256,7 +362,7 @@ namespace RemindMe {
                     }
                 }
 
-                if (display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
+                if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
                     var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
                     ImGui.SetCursorPosY(cPosY + ImGui.GetStyle().FramePadding.Y);
@@ -268,9 +374,9 @@ namespace RemindMe {
                 ImGui.EndGroup();
                 ImGui.SameLine();
                 if (rightToLeft) {
-                    ImGui.SetCursorPosX(cPosX - display.RowSize - ImGui.GetStyle().ItemSpacing.X);
+                    ImGui.SetCursorPosX(cPosX - display.RowSize - display.BarSpacing);
                 } else {
-                    ImGui.SetCursorPosX(cPosX + display.RowSize + ImGui.GetStyle().ItemSpacing.X);
+                    ImGui.SetCursorPosX(cPosX + display.RowSize + display.BarSpacing);
                 }
 
             }
@@ -284,6 +390,7 @@ namespace RemindMe {
             if (bottomToTop) {
                 ImGui.SetCursorPosY(ImGui.GetWindowHeight() - (display.RowSize + ImGui.GetStyle().WindowPadding.Y));
             }
+            ImGui.SetWindowFontScale(display.TextScale);
 
             foreach (var timer in timerList) {
                 ImGui.PushStyleColor(ImGuiCol.PlotHistogram, timer.ProgressColor);
@@ -305,8 +412,6 @@ namespace RemindMe {
                     }
 
                 }
-
-                ImGui.SetWindowFontScale(display.TextScale);
 
                 var size = ImGui.CalcTextSize(timer.Name);
                 var cPosY = ImGui.GetCursorPosY();
@@ -340,7 +445,7 @@ namespace RemindMe {
                     ImGui.TextColored(display.TextColor, $"{timer.Name}");
                 }
 
-                if (display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
+                if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
                     var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
 
@@ -353,9 +458,9 @@ namespace RemindMe {
                 ImGui.EndGroup();
 
                 if (bottomToTop) {
-                    ImGui.SetCursorPosY(cPosY - display.RowSize - ImGui.GetStyle().ItemSpacing.Y);
+                    ImGui.SetCursorPosY(cPosY - display.RowSize - display.BarSpacing);
                 } else {
-                    ImGui.SetCursorPosY(cPosY + display.RowSize + ImGui.GetStyle().ItemSpacing.Y);
+                    ImGui.SetCursorPosY(cPosY + display.RowSize + display.BarSpacing);
                 }
                
 

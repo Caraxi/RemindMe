@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
 using RemindMe.Config;
+using RemindMe.Reminder;
 using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe
@@ -25,6 +27,8 @@ namespace RemindMe
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None)]
         public Dictionary<Guid, Config.MonitorDisplay> MonitorDisplays = new Dictionary<Guid, MonitorDisplay>();
 
+        [JsonIgnore]
+        public List<GeneralReminder> GeneralReminders = new List<GeneralReminder>();
 
         public RemindMeConfig() { }
 
@@ -32,6 +36,9 @@ namespace RemindMe
         {
             this.plugin = plugin;
             this.pluginInterface = pluginInterface;
+            foreach (var t in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(GeneralReminder)))) {
+                GeneralReminders.Add((GeneralReminder) Activator.CreateInstance(t));
+            }
         }
 
         public void Save()
@@ -130,9 +137,6 @@ namespace RemindMe
                 } else {
                     ImGui.Text("No display setup.");
                 }
-
-                
-
 
                 ImGui.EndTabItem();
             }
@@ -243,6 +247,53 @@ namespace RemindMe
                 
                 ImGui.EndTabItem();
             }
+
+            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Reminders")) {
+
+                ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
+                ImGui.SetColumnWidth(0, 180);
+                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                    ImGui.SetColumnWidth(i, 100);
+                }
+                ImGui.Text("Reminder");
+                ImGui.NextColumn();
+                foreach (var m in MonitorDisplays.Values) {
+                    ImGui.Text(m.Name);
+                    ImGui.NextColumn();
+                }
+                ImGui.Separator();
+
+                foreach (var r in GeneralReminders) {
+                    ImGui.Text(r.Name);
+                    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.7f, 0.7f, 0.7f, 1));
+                    ImGui.TextWrapped(r.Description);
+                    ImGui.PopStyleColor();
+                    ImGui.NextColumn();
+
+                    foreach (var m in MonitorDisplays.Values) {
+
+                        var enabled = m.GeneralReminders.Contains(r);
+                        if (ImGui.Checkbox($"###generalReminder{m.Guid}_{r.GetType().Name}", ref enabled)) {
+                            if (enabled) {
+                                m.GeneralReminders.Add(r);
+                            } else {
+                                m.GeneralReminders.Remove(r);
+                            }
+                            Save();
+                        }
+                        ImGui.NextColumn();
+                    }
+
+
+
+                }
+
+                ImGui.Columns(1);
+
+
+                ImGui.EndTabItem();
+            }
+
 #if DEBUG
             if (ImGui.BeginTabItem("Debug")) {
                 try {

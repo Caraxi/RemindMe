@@ -13,12 +13,16 @@ namespace RemindMe {
         public string Name;
         public ushort IconId;
 
+        public bool AllowCountdown = true;
+
         public float TimerRemaining => TimerMax - TimerCurrent;
 
         public float TimerFractionComplete => TimerCurrent / TimerMax;
         public float TimerFractionRemaining => 1 - TimerFractionComplete;
 
         public bool IsComplete => TimerCurrent >= TimerMax;
+
+        
 
     }
 }

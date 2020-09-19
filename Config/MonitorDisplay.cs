@@ -3,16 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Newtonsoft.Json;
+using RemindMe.JsonConverters;
 
 namespace RemindMe.Config {
 
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
     public class MonitorDisplay {
         private static readonly string[] _displayTypes = new string[] {
             "Horizontal (Top to Bottom)",
             "Horizontal (Bottom to Top)",
             "Vertical (Left to Right)",
             "Vertical (Right to Left)",
+            "Icons",
         };
 
         public bool Enabled = false;
@@ -26,6 +27,7 @@ namespace RemindMe.Config {
 
         public int RowSize = 32;
         public float TextScale = 1;
+        public int BarSpacing = 5;
 
         public bool ShowActionIcon = true;
         public bool OnlyInCombat = true;
@@ -40,12 +42,11 @@ namespace RemindMe.Config {
         public bool LimitDisplayReadyTime;
         public int LimitDisplayReadyTimeSeconds = 15;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None)]
         public List<CooldownMonitor> Cooldowns = new List<CooldownMonitor>();
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None)]
         public List<StatusMonitor> StatusMonitors = new List<StatusMonitor>();
 
+        public List<GeneralReminder> GeneralReminders = new List<GeneralReminder>();
 
         public Vector4 AbilityReadyColor = new Vector4(0.70f, 0.25f, 0.25f, 0.75f);
         public Vector4 AbilityCooldownColor = new Vector4(0.75f, 0.125f, 0.665f, 0.75f);
@@ -113,7 +114,12 @@ namespace RemindMe.Config {
             if (ImGui.InputInt($"Bar Height##{this.Guid}", ref this.RowSize, 1, 5)) {
                 if (this.RowSize < 8) this.RowSize = 8;
                 mainConfig.Save();
-            }if (ImGui.InputFloat($"Text Scale##{this.Guid}", ref this.TextScale, 0.01f, 0.1f)) {
+            }
+            if (ImGui.InputInt($"Bar Spacing##{this.Guid}", ref this.BarSpacing, 1, 2)) {
+                if (this.BarSpacing < 0) this.BarSpacing = 0;
+                mainConfig.Save();
+            }
+            if (ImGui.InputFloat($"Text Scale##{this.Guid}", ref this.TextScale, 0.01f, 0.1f)) {
                 if (this.RowSize < 8) this.RowSize = 8;
                 mainConfig.Save();
             }
