@@ -25,10 +25,7 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="PropertyChanged.Fody" Version="2.6.1" />
-    </ItemGroup>
-    <ItemGroup>
+	<ItemGroup>
 		<Reference Include="Dalamud">
 			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\Dalamud.dll</HintPath>
 		</Reference>
