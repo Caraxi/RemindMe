@@ -284,8 +284,6 @@ namespace RemindMe
                         ImGui.NextColumn();
                     }
 
-
-
                 }
 
                 ImGui.Columns(1);
@@ -321,6 +319,15 @@ namespace RemindMe
 
                     var lastAction = plugin.ActionManager.GetAction(plugin.ActionManager.LastActionId);
                     ImGui.Text(lastAction != null ? $"\nLast Action: [{lastAction.RowId}] {lastAction.Name}" : $"\nLast Action: [{plugin.ActionManager.LastActionId}] Unknown");
+                     
+                    if (lastAction != null) {
+                        var ptr = plugin.ActionManager.GetCooldownPointer(lastAction.CooldownGroup).ToInt64().ToString("X");
+                        ImGui.InputText("Cooldown Ptr", ref ptr, 16, ImGuiInputTextFlags.ReadOnly);
+                    }
+
+                    ImGui.Text($"Last Action Max Charges: {lastAction.MaxCharges}");
+
+
                 } catch {}
                 
 

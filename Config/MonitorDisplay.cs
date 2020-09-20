@@ -30,6 +30,8 @@ namespace RemindMe.Config {
         public int BarSpacing = 5;
 
         public bool ShowActionIcon = true;
+        public float ActionIconScale = 0.9f;
+
         public bool OnlyInCombat = true;
         public bool ShowSkillName = true;
         public bool ShowCountdown = false;
@@ -97,6 +99,12 @@ namespace RemindMe.Config {
                 mainConfig.Save();
             }
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
+            if (this.ShowActionIcon) {
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(100);
+                if (ImGui.SliderFloat($"###actionIconScale{this.Guid}", ref this.ActionIconScale, 0.1f, 1f, "Scale", 1f)) mainConfig.Save();
+            }
+
             if (DisplayType < 2 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown && ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();

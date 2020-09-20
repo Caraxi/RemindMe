@@ -413,6 +413,8 @@ namespace RemindMe {
                         ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor);
                     }
 
+                } else {
+                    ImGui.PushStyleColor(ImGuiCol.FrameBg, display.BarBackgroundColor);
                 }
 
                 var size = ImGui.CalcTextSize(timer.Name);
@@ -428,18 +430,21 @@ namespace RemindMe {
 
                 ImGui.BeginGroup();
 
-                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetStyle().FramePadding.X);
-
                 if (display.ShowActionIcon) {
-                    ImGui.SetCursorPosY(cPosY + ImGui.GetStyle().FramePadding.X);
+                    var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
+                    var x = ImGui.GetCursorPosX();
+                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (iconSize.Y / 2));
+                    ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
 
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
                         if (icon != null) {
-                            ImGui.Image(icon.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                            
+                            ImGui.Image(icon.ImGuiHandle, iconSize);
                         }
                     }
                     ImGui.SameLine();
+                    ImGui.SetCursorPosX(x + (display.RowSize / 2f) + (iconSize.X / 2) + ImGui.GetStyle().ItemSpacing.X);
                 }
 
                 if (display.ShowSkillName) {
@@ -464,13 +469,8 @@ namespace RemindMe {
                 } else {
                     ImGui.SetCursorPosY(cPosY + display.RowSize + display.BarSpacing);
                 }
-               
-
-                if (timer.IsComplete) {
-                    ImGui.PopStyleColor();
-                }
-
-                ImGui.PopStyleColor();
+                
+                ImGui.PopStyleColor(2);
             }
         }
 
