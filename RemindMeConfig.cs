@@ -319,16 +319,8 @@ namespace RemindMe
                         }
                     }
 
-                    ImGui.Text("\nAction History: ");
-                    foreach (var ahi in plugin.ActionManager.ActionHistory.OrderBy(a => a.ElapsedMilliseconds)) {
-                        var action = pluginInterface.Data.Excel.GetSheet<Action>().GetRow(ahi.ActionID);
-                        if (ahi.Target == null) {
-                            ImGui.Text($"\t{action.Name}: {action.RowId} ({(ahi.ElapsedMilliseconds / 1000f):F1})");
-                        } else {
-                            ImGui.Text($"\t{action.Name}: {action.RowId} ({(ahi.ElapsedMilliseconds / 1000f):F1}) on {ahi.Target.Name}");
-                        }
-
-                    }
+                    var lastAction = plugin.ActionManager.GetAction(plugin.ActionManager.LastActionId);
+                    ImGui.Text(lastAction != null ? $"\nLast Action: [{lastAction.RowId}] {lastAction.Name}" : $"\nLast Action: [{plugin.ActionManager.LastActionId}] Unknown");
                 } catch {}
                 
 

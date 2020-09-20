@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Data.LuminaExtensions;
 using Dalamud.Game.Internal;
 using Dalamud.Hooking;
-using Dalamud.Plugin;
-using ImGuiNET;
 using ImGuiScene;
 using JetBrains.Annotations;
 using Action = Lumina.Excel.GeneratedSheets.Action;
@@ -19,11 +15,13 @@ namespace RemindMe {
         private IntPtr actionManagerPtr;
         private RemindMe plugin;
 
+        public uint LastActionId;
+
         private Dictionary<uint, Cooldown> cooldownList = new Dictionary<uint, Cooldown>();
 
         private delegate IntPtr StartCooldownDelegate(IntPtr actionManager, uint actionType, uint actionId);
         private Hook<StartCooldownDelegate> startCooldownHook;
-        
+
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate bool IsActionCooldownDelegate(IntPtr actionManager, uint actionType, uint actionId);
         private IsActionCooldownDelegate isActionCooldown;
@@ -31,10 +29,6 @@ namespace RemindMe {
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate IntPtr GetActionCooldownSlotDelegate(IntPtr actionManager, int cooldownGroup);
 
-#if DEBUG
-        public List<ActionHistoryItem> ActionHistory = new List<ActionHistoryItem>();
-        public uint ActionHistoryLimit = 100;
-#endif
         internal TextureWrap GetActionIcon(Action action) {
             var iconTex = plugin.PluginInterface.Data.GetIcon(action.Icon);
             var tex = plugin.PluginInterface.UiBuilder.LoadImageRaw(iconTex.GetRgbaImageData(), iconTex.Header.Width, iconTex.Header.Height, 4);
@@ -63,16 +57,11 @@ namespace RemindMe {
 #endif
             plugin.PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
         }
-#if DEBUG
+
         private IntPtr StartCooldownDetour(IntPtr actionManager, uint actionType, uint actionId) {
-            ActionHistory.Add(new ActionHistoryItem(actionId, plugin.PluginInterface.ClientState.Targets.CurrentTarget));
-            while (ActionHistory.Count > ActionHistoryLimit) {
-                ActionHistory.RemoveAt(0);
-            }
+            LastActionId = actionId;
             return startCooldownHook.Original(actionManager, actionType, actionId);
         }
-#endif
-
 
         [CanBeNull]
         public Action GetAction(uint actionID) {
@@ -97,6 +86,7 @@ namespace RemindMe {
         public void Dispose() {
             startCooldownHook?.Disable();
             startCooldownHook?.Dispose();
+
             plugin.PluginInterface.Framework.OnUpdateEvent -= FrameworkOnOnUpdateEvent;
 
             foreach (var a in cooldownList) {

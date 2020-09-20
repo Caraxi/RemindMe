@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Plugin;
@@ -39,8 +40,9 @@ namespace RemindMe {
 
         public void Initialize(DalamudPluginInterface pluginInterface) {
             generalStopwatch.Start();
+#if DEBUG
             drawConfigWindow = true;
-
+#endif
             this.PluginInterface = pluginInterface;
             this.PluginConfig = (RemindMeConfig)pluginInterface.GetPluginConfig() ?? new RemindMeConfig();
             this.PluginConfig.Init(this, pluginInterface);
@@ -266,7 +268,7 @@ namespace RemindMe {
 
                 if (timer.IsComplete) {
                     var finishedColor = Vector4.Zero + timer.FinishedColor;
-                    var s = Math.Abs((Math.Abs(timer.TimerRemaining) - (float)Math.Floor(Math.Abs(timer.TimerRemaining)) - 0.5f) / 2);
+                    var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
                     if (timer.FinishedColor.W < 0.75) {
                         finishedColor += new Vector4(0, 0, 0, s);
                     } else {
@@ -302,7 +304,7 @@ namespace RemindMe {
 
                 var newX = cPosX + display.RowSize + display.BarSpacing;
                 var newY = cPosY;
-                if (newX > ImGui.GetWindowWidth() - display.RowSize + display.BarSpacing) {
+                if (newX > ImGui.GetWindowWidth() - display.RowSize - ImGui.GetStyle().WindowPadding.X) {
                     newX = sPosX;
                     newY = cPosY + display.RowSize + display.BarSpacing;
                 }
@@ -339,7 +341,7 @@ namespace RemindMe {
                 // Draw Bar
                 if (timer.IsComplete) {
                     var finishedColor = Vector4.Zero + timer.FinishedColor;
-                    var s = Math.Abs((Math.Abs(timer.TimerRemaining) - (float)Math.Floor(Math.Abs(timer.TimerRemaining)) - 0.5f) / 2);
+                    var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
                     if (timer.FinishedColor.W < 0.75) {
                         finishedColor += new Vector4(0, 0, 0, s);
                     } else {
@@ -397,7 +399,7 @@ namespace RemindMe {
                 if (timer.IsComplete) {
 
                     if (display.PulseReady) {
-                        var s = Math.Abs((Math.Abs(timer.TimerRemaining) - (float)Math.Floor(Math.Abs(timer.TimerRemaining)) - 0.5f) / 2);
+                        var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
 
                         if (timer.FinishedColor.W < 0.75) {
                             ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor + new Vector4(0, 0, 0, s));

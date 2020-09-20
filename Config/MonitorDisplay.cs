@@ -36,6 +36,10 @@ namespace RemindMe.Config {
         public bool ShowCountdownReady = false;
 
         public bool PulseReady = false;
+        public float PulseSpeed = 1.0f;
+        public float PulseIntensity = 1.0f;
+
+
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
 
@@ -68,6 +72,8 @@ namespace RemindMe.Config {
             if (ImGui.Combo("Display Type", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
             ImGui.Separator();
             ImGui.Separator();
+
+
             ImGui.Text("Colours");
             ImGui.Separator();
 
@@ -95,6 +101,19 @@ namespace RemindMe.Config {
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown && ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
             if (ImGui.Checkbox($"Pulse when ready##{this.Guid}", ref this.PulseReady)) mainConfig.Save();
+
+            if (this.PulseReady) {
+
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(100);
+                if (ImGui.SliderFloat($"###pulseSpeed{this.Guid}", ref this.PulseSpeed, 0.5f, 2f, "Speed", 2f)) mainConfig.Save();
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(100);
+                if (ImGui.SliderFloat($"###pulseIntensity{this.Guid}", ref this.PulseIntensity, 0.1f, 2f, "Intensity")) mainConfig.Save();
+
+
+            }
+
             ImGui.Separator();
             if (ImGui.Checkbox($"###limitDisplay{this.Guid}", ref this.LimitDisplayTime)) mainConfig.Save();
             ImGui.SameLine();
@@ -123,6 +142,9 @@ namespace RemindMe.Config {
                 if (this.RowSize < 8) this.RowSize = 8;
                 mainConfig.Save();
             }
+            
+
+            
             ImGui.Separator();
 
 
