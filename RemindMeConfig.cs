@@ -214,12 +214,16 @@ namespace RemindMe
                         }
                         case 27: {
                             // SMN
+                            StatusMonitorConfigDisplay(27, 164, 179, 30); // Bio
+                            StatusMonitorConfigDisplay(27, 168, 180, 30); // Miasma
+                            StatusMonitorConfigDisplay(27, 178, 189, 30); // Bio II
                             StatusMonitorConfigDisplay(27, 7424, 1214, 30); // Bio III
                             StatusMonitorConfigDisplay(27, 7425, 1215, 30); // Miasma III
                             break;
                         }
                         case 28: {
                             // SCH
+                            StatusMonitorConfigDisplay(28, 17864, 179, 30); // Bio
                             StatusMonitorConfigDisplay(28, 17865, 189, 30); // Bio II
                             StatusMonitorConfigDisplay(28, 16540, 1895, 30); // Biolysis
                             break;
