@@ -127,7 +127,7 @@ namespace RemindMe {
                     if (!inCombat && !display.KeepVisibleOutsideCombat) continue;
 
                     if (!inCombat && display.KeepVisibleOutsideCombat) {
-                        if (OutOfCombatTimer.Elapsed.Seconds > display.KeepVisibleOutsideCombatSeconds) {
+                        if (OutOfCombatTimer.Elapsed.TotalSeconds > display.KeepVisibleOutsideCombatSeconds) {
                             continue;
                         }
                     }
