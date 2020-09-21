@@ -208,7 +208,9 @@ namespace RemindMe
                         }
                         case 25: {
                             // BLM
-                            StatusMonitorConfigDisplay(25, 154, 163, 24); // Thunder III
+                            StatusMonitorConfigDisplay(25, 144, 161, 24); // Thunder
+                            StatusMonitorConfigDisplay(25, 7447, 162, 24); // Thunder II
+                            StatusMonitorConfigDisplay(25, 153, 163, 24); // Thunder III
                             StatusMonitorConfigDisplay(25, 7420, 1210, 18); // Thunder IV
                             break;
                         }
