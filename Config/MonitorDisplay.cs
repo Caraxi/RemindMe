@@ -9,12 +9,14 @@ namespace RemindMe.Config {
 
     public class MonitorDisplay {
         private static readonly string[] _displayTypes = new string[] {
-            "Horizontal (Top to Bottom)",
-            "Horizontal (Bottom to Top)",
-            "Vertical (Left to Right)",
-            "Vertical (Right to Left)",
+            "Horizontal",
+            "Vertical",
             "Icons",
         };
+
+        public bool DirectionRtL = false;
+        public bool DirectionBtT = false;
+        public bool IconVerticalStack = false;
 
         public bool Enabled = false;
         public Guid Guid;
@@ -72,9 +74,13 @@ namespace RemindMe.Config {
             if (ImGui.InputText($"###displayName{this.Guid}", ref this.Name, 32)) mainConfig.Save();
             ImGui.Separator();
             if (ImGui.Combo("Display Type", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
-            ImGui.Separator();
-            ImGui.Separator();
 
+            if ((DisplayType == 1 || DisplayType == 2) && ImGui.Checkbox("Right to Left", ref DirectionRtL)) mainConfig.Save();
+            if ((DisplayType == 0 || DisplayType == 2) && ImGui.Checkbox("Bottom to Top", ref DirectionBtT)) mainConfig.Save();
+            if (DisplayType == 2 && ImGui.Checkbox("Vertical Stack", ref IconVerticalStack)) mainConfig.Save();
+
+            ImGui.Separator();
+            ImGui.Separator();
 
             ImGui.Text("Colours");
             ImGui.Separator();
@@ -150,8 +156,6 @@ namespace RemindMe.Config {
                 if (this.RowSize < 8) this.RowSize = 8;
                 mainConfig.Save();
             }
-            
-
             
             ImGui.Separator();
 

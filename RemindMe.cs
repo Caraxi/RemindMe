@@ -221,17 +221,15 @@ namespace RemindMe {
                     }
 
                     switch (display.DisplayType) {
-                        case 0:
-                        case 1: {
+                        case 0: {
                             DrawDisplayHorizontal(display, TimerList);
                             break;
                         }
-                        case 2:
-                        case 3: {
+                        case 1: {
                             DrawDisplayVertical(display, TimerList);
                             break;
                         }
-                        case 4: {
+                        case 2: {
                             DrawDisplayIcons(display, TimerList);
                             break;
                         }
@@ -248,7 +246,18 @@ namespace RemindMe {
         }
 
         private void DrawDisplayIcons(MonitorDisplay display, List<DisplayTimer> timerList) {
+
+
+            if (display.DirectionBtT) {
+                ImGui.SetCursorPosY(ImGui.GetWindowHeight() - (display.RowSize + ImGui.GetStyle().WindowPadding.Y));
+            }
+
+            if (display.DirectionRtL) {
+                ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize + ImGui.GetStyle().WindowPadding.X));
+            }
+
             var sPosX = ImGui.GetCursorPosX();
+            var sPosY = ImGui.GetCursorPosY();
             ImGui.SetWindowFontScale(display.TextScale);
             foreach (var timer in timerList) {
                 var cPosX = ImGui.GetCursorPosX();
@@ -301,23 +310,67 @@ namespace RemindMe {
 
                 ImGui.EndGroup();
 
-
-                var newX = cPosX + display.RowSize + display.BarSpacing;
+                var newX = cPosX;
                 var newY = cPosY;
-                if (newX > ImGui.GetWindowWidth() - display.RowSize - ImGui.GetStyle().WindowPadding.X) {
-                    newX = sPosX;
-                    newY = cPosY + display.RowSize + display.BarSpacing;
+                if (display.IconVerticalStack) {
+                    if (display.DirectionBtT) {
+                        newY = cPosY - display.RowSize - display.BarSpacing;
+                        if (newY < 0 + ImGui.GetStyle().WindowPadding.Y) {
+                            newY = sPosY;
+                            if (display.DirectionRtL) {
+                                newX = cPosX - display.RowSize - display.BarSpacing;
+                            } else {
+                                newX = cPosX + display.RowSize + display.BarSpacing;
+                            }
+                        }
+                    } else {
+                        newY = cPosY + display.RowSize + display.BarSpacing;
+                        newX = cPosX;
+                        if (newY > ImGui.GetWindowHeight() - display.RowSize - ImGui.GetStyle().WindowPadding.Y) {
+                            newY = sPosY;
+                            if (display.DirectionRtL) {
+                                newX = cPosX - display.RowSize - display.BarSpacing;
+                            } else {
+                                newX = cPosX + display.RowSize + display.BarSpacing;
+                            }
+                        }
+                    }
+                } else {
+                    if (display.DirectionRtL) {
+                        newX = cPosX - display.RowSize - display.BarSpacing;
+                        if (newX < 0 + ImGui.GetStyle().WindowPadding.X) {
+                            newX = sPosX;
+                            if (display.DirectionBtT) {
+                                newY = cPosY - display.RowSize - display.BarSpacing;
+                            } else {
+                                newY = cPosY + display.RowSize + display.BarSpacing;
+                            }
+                        }
+                    } else {
+                        newX = cPosX + display.RowSize + display.BarSpacing;
+                        newY = cPosY;
+                        if (newX > ImGui.GetWindowWidth() - display.RowSize - ImGui.GetStyle().WindowPadding.X) {
+                            newX = sPosX;
+                            if (display.DirectionBtT) {
+                                newY = cPosY - display.RowSize - display.BarSpacing;
+                            } else {
+                                newY = cPosY + display.RowSize + display.BarSpacing;
+                            }
+                        }
+                    }
                 }
+                
+                
 
-                ImGui.SetCursorPosX(newX);
                 ImGui.SetCursorPosY(newY);
+                ImGui.SetCursorPosX(newX);
+                
             }
         }
 
         private unsafe void DrawDisplayVertical(MonitorDisplay display, List<DisplayTimer> timerList) {
-            var rightToLeft = display.DisplayType == 3;
 
-            if (rightToLeft) {
+            if (display.DirectionRtL) {
                 ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize + ImGui.GetStyle().WindowPadding.X));
             }
             ImGui.SetWindowFontScale(display.TextScale);
@@ -375,7 +428,7 @@ namespace RemindMe {
 
                 ImGui.EndGroup();
                 ImGui.SameLine();
-                if (rightToLeft) {
+                if (display.DirectionRtL) {
                     ImGui.SetCursorPosX(cPosX - display.RowSize - display.BarSpacing);
                 } else {
                     ImGui.SetCursorPosX(cPosX + display.RowSize + display.BarSpacing);
@@ -386,10 +439,8 @@ namespace RemindMe {
         }
 
         private void DrawDisplayHorizontal(MonitorDisplay display, List<DisplayTimer> timerList) {
-            var bottomToTop = display.DisplayType == 1;
 
-
-            if (bottomToTop) {
+            if (display.DirectionBtT) {
                 ImGui.SetCursorPosY(ImGui.GetWindowHeight() - (display.RowSize + ImGui.GetStyle().WindowPadding.Y));
             }
             ImGui.SetWindowFontScale(display.TextScale);
@@ -464,7 +515,7 @@ namespace RemindMe {
 
                 ImGui.EndGroup();
 
-                if (bottomToTop) {
+                if (display.DirectionBtT) {
                     ImGui.SetCursorPosY(cPosY - display.RowSize - display.BarSpacing);
                 } else {
                     ImGui.SetCursorPosY(cPosY + display.RowSize + display.BarSpacing);
