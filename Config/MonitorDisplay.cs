@@ -35,6 +35,9 @@ namespace RemindMe.Config {
         public float ActionIconScale = 0.9f;
 
         public bool OnlyInCombat = true;
+        public bool KeepVisibleOutsideCombat = false;
+        public int KeepVisibleOutsideCombatSeconds = 15;
+
         public bool ShowSkillName = true;
         public bool ShowCountdown = false;
         public bool ShowCountdownReady = false;
@@ -95,7 +98,21 @@ namespace RemindMe.Config {
             ImGui.Separator();
             ImGui.Text("Display Options");
             ImGui.Separator();
-            if (ImGui.Checkbox($"Only show while in combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
+            if (ImGui.Checkbox($"Hide outside of combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
+
+            if (OnlyInCombat) {
+                ImGui.Indent(20);
+                if (ImGui.Checkbox($"Keep visible for###keepVisibleOutsideCombat{this.Guid}", ref this.KeepVisibleOutsideCombat)) mainConfig.Save();
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(100);
+                if (ImGui.InputInt($"seconds after exiting combat.###keepVisibleOutsideCombatSeconds{this.Guid}", ref KeepVisibleOutsideCombatSeconds)) mainConfig.Save();
+                if (KeepVisibleOutsideCombatSeconds < 0) {
+                    KeepVisibleOutsideCombatSeconds = 0;
+                    mainConfig.Save();
+                }
+                ImGui.Indent(-20);
+            }
+
             if (ImGui.Checkbox($"Don't show complete cooldowns##{this.Guid}", ref this.OnlyShowCooldown)) {
                 OnlyShowReady = false;
                 mainConfig.Save();
@@ -113,7 +130,12 @@ namespace RemindMe.Config {
 
             if (DisplayType < 2 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
-            if (ShowCountdown && ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
+            if (ShowCountdown) {
+                ImGui.Indent(20);
+                if (ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
+                ImGui.Indent(-20);
+
+            }
             if (ImGui.Checkbox($"Pulse when ready##{this.Guid}", ref this.PulseReady)) mainConfig.Save();
 
             if (this.PulseReady) {

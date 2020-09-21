@@ -318,6 +318,7 @@ namespace RemindMe
                 try {
                     ImGui.Text($"Current ClassJobID: {pluginInterface.ClientState.LocalPlayer.ClassJob.Id}");
                     ImGui.Text($"Current Level: {pluginInterface.ClientState.LocalPlayer.Level}");
+                    ImGui.Text($"Not In Combat for: {plugin.OutOfCombatTimer.Elapsed.Seconds} seconds.");
 
                     if (pluginInterface.ClientState.Targets.CurrentTarget != null) {
                         ImGui.Text("\nEffects on Target: ");

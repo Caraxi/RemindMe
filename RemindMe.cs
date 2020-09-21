@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
@@ -29,13 +30,18 @@ namespace RemindMe {
 
         private Stopwatch generalStopwatch = new Stopwatch();
 
+        internal Stopwatch OutOfCombatTimer = new Stopwatch();
+
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
+            PluginInterface.Framework.OnUpdateEvent -= FrameworkOnOnUpdateEvent;
             ActionManager?.Dispose();
             IconManager?.Dispose();
             generalStopwatch.Stop();
+            OutOfCombatTimer.Stop();
             RemoveCommands();
+            PluginInterface.Dispose();
         }
 
         public void Initialize(DalamudPluginInterface pluginInterface) {
@@ -46,6 +52,8 @@ namespace RemindMe {
             this.PluginInterface = pluginInterface;
             this.PluginConfig = (RemindMeConfig)pluginInterface.GetPluginConfig() ?? new RemindMeConfig();
             this.PluginConfig.Init(this, pluginInterface);
+
+            PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
 
             IconManager = new IconManager(pluginInterface);
             ActionList = PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction).ToList();
@@ -59,6 +67,17 @@ namespace RemindMe {
             PluginInterface.UiBuilder.OnBuildUi += this.BuildUI;
 
             SetupCommands();
+        }
+
+        private void FrameworkOnOnUpdateEvent(Framework framework) {
+            if (PluginInterface.ClientState?.LocalPlayer == null) return;
+            var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+            if (OutOfCombatTimer.IsRunning && inCombat) {
+                OutOfCombatTimer.Stop();
+                OutOfCombatTimer.Reset();
+            } else if (!OutOfCombatTimer.IsRunning && !inCombat) {
+                OutOfCombatTimer.Start();
+            }
         }
 
         private void OnOpenConfigUi(object sender, EventArgs e) {
@@ -102,8 +121,16 @@ namespace RemindMe {
 
             foreach (var display in PluginConfig.MonitorDisplays.Values) {
 
-                if (display.Locked && display.OnlyInCombat && !PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat)) {
-                    continue;
+                if (display.Locked && display.OnlyInCombat) {
+                    var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+
+                    if (!inCombat && !display.KeepVisibleOutsideCombat) continue;
+
+                    if (!inCombat && display.KeepVisibleOutsideCombat) {
+                        if (OutOfCombatTimer.Elapsed.Seconds > display.KeepVisibleOutsideCombatSeconds) {
+                            continue;
+                        }
+                    }
                 }
 
                 var flags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollbar;
