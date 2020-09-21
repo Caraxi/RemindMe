@@ -30,6 +30,9 @@ namespace RemindMe
         [JsonIgnore]
         public List<GeneralReminder> GeneralReminders = new List<GeneralReminder>();
 
+        private bool showGlobalCooldowns;
+        private const int GlobalCooldownGroup = 58;
+
         public RemindMeConfig() { }
 
         public void Init(RemindMe plugin, DalamudPluginInterface pluginInterface)
@@ -93,6 +96,8 @@ namespace RemindMe
 
 
                     ImGui.Text("Action");
+                    ImGui.SameLine();
+                    ImGui.Checkbox("Show GCD", ref showGlobalCooldowns);
                     ImGui.NextColumn();
 
                     foreach (var d in MonitorDisplays.Values) {
@@ -101,10 +106,22 @@ namespace RemindMe
                     }
 
                     ImGui.Separator();
-                    
-                    foreach (var a in plugin.ActionList.Where(a => a.CooldownGroup != 58 && a.IsPvP == false && a.ClassJobCategory.Value.HasClass(pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) {
+                    var gcdTextSize = ImGui.CalcTextSize("[GCD]");
+                    foreach (var a in plugin.ActionList.Where(a => (showGlobalCooldowns || a.CooldownGroup != GlobalCooldownGroup || MonitorDisplays.Any(d => d.Value.Cooldowns.Any(c => c.ActionId == a.RowId))) && a.IsPvP == false && a.ClassJobCategory.Value.HasClass(pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) {
                         var cdm = new CooldownMonitor { ActionId = a.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id };
+
+                        if (a.CooldownGroup == GlobalCooldownGroup) {
+                            var x = ImGui.GetCursorPosX();
+                            ImGui.SetCursorPosX(ImGui.GetColumnWidth() - gcdTextSize.X);
+                            ImGui.TextColored(new Vector4(0.8f), "[GCD]");
+                            ImGui.SameLine();
+                            ImGui.SetCursorPosX(x);
+                        }
+
                         ImGui.Text($"{a.Name}");
+
+                        
+
                         ImGui.NextColumn();
 
                         foreach (var d in MonitorDisplays.Values) {
