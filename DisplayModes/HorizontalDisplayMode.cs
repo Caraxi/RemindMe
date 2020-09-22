@@ -88,6 +88,10 @@ namespace RemindMe {
                 }
 
                 ImGui.PopStyleColor(2);
+
+                if (ImGui.GetCursorPosY() + display.RowSize > ImGui.GetWindowHeight()) {
+                    return;
+                }
             }
         }
     }

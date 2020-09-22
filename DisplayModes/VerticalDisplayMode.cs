@@ -72,6 +72,9 @@ namespace RemindMe {
                     ImGui.SetCursorPosX(cPosX + display.RowSize + display.BarSpacing);
                 }
 
+                if (ImGui.GetCursorPosX() + display.RowSize > ImGui.GetWindowWidth()) {
+                    return;
+                }
             }
 
         }
