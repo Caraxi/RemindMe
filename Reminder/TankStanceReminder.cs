@@ -12,8 +12,6 @@ namespace RemindMe.Reminder {
 
         private readonly uint[] tankStatusEffectIDs = { 79, 91, 743, 1833 };
 
-        private readonly Stopwatch stopwatch = new Stopwatch();
-
         private readonly Dictionary<uint, uint> TankStanceActions = new Dictionary<uint, uint>() {
             { 1, 28 },
             { 3, 48 },
