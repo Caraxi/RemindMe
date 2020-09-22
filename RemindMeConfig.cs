@@ -246,8 +246,8 @@ namespace RemindMe
                             StatusMonitorConfigDisplay(33, 3599, 838, 30); // Combust
                             StatusMonitorConfigDisplay(33, 3608, 843, 30); // Combust II
                             StatusMonitorConfigDisplay(33, 16554, 1881, 30); // Combust III
-                            StatusMonitorConfigDisplay(33, 3595, 835, 15, "Diuranal"); // Aspected Benific (Regen)
-                            StatusMonitorConfigDisplay(33, 3601, 836, 15, "Diuranal"); // Aspected Helios (Regen)
+                            StatusMonitorConfigDisplay(33, 3595, 835, 15, "Diurnal"); // Aspected Benific (Regen)
+                            StatusMonitorConfigDisplay(33, 3601, 836, 15, "Diurnal"); // Aspected Helios (Regen)
                             break;
                         }
                         case 34: {
