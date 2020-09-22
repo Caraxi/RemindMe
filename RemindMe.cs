@@ -28,7 +28,7 @@ namespace RemindMe {
 
         public IconManager IconManager;
 
-        private Stopwatch generalStopwatch = new Stopwatch();
+        private readonly Stopwatch generalStopwatch = new Stopwatch();
 
         internal Stopwatch OutOfCombatTimer = new Stopwatch();
 
@@ -73,6 +73,8 @@ namespace RemindMe {
             if (PluginInterface.ClientState?.LocalPlayer == null) return;
             var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
             if (OutOfCombatTimer.IsRunning && inCombat) {
+                generalStopwatch.Restart();
+                ActionManager.ResetTimers();
                 OutOfCombatTimer.Stop();
                 OutOfCombatTimer.Reset();
             } else if (!OutOfCombatTimer.IsRunning && !inCombat) {

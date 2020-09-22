@@ -75,6 +75,8 @@ namespace RemindMe {
             ActionIconTexture?.Dispose();
         }
 
-       
+        public void ResetReadyCountUp() {
+            if (!IsOnCooldown) readyStopwatch.Restart();
+        }
     }
 }

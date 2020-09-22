@@ -104,5 +104,11 @@ namespace RemindMe {
         public IntPtr GetCooldownPointer(byte actionCooldownGroup) {
             return getActionCooldownSlot(actionManagerPtr, actionCooldownGroup - 1);
         }
+
+        public void ResetTimers() {
+            foreach (var i in cooldownList) {
+                i.Value.ResetReadyCountUp();
+            }
+        }
     }
 }
