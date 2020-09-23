@@ -51,11 +51,15 @@ namespace RemindMe {
                 }
 
                 if (display.ShowActionIcon && timer.IconId > 0) {
-                    ImGui.SetCursorPosY(cPosY + barSize.Y + ImGui.GetStyle().FramePadding.Y - display.RowSize);
-                    ImGui.SetCursorPosX(cPosX + ImGui.GetStyle().FramePadding.X);
+
+                    var iconSize = new Vector2(display.RowSize * display.ActionIconScale);
+                    
+                    ImGui.SetCursorPosY(cPosY + barSize.Y / 2 - iconSize.X / 2);
+                    ImGui.SetCursorPosX(cPosX + barSize.X / 2 - iconSize.X / 2);
                     var icon = IconManager.GetIconTexture(timer.IconId);
+
                     if (icon != null) {
-                        ImGui.Image(icon.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                        ImGui.Image(icon.ImGuiHandle, iconSize);
                     }
                 }
 
