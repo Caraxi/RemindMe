@@ -87,7 +87,7 @@ namespace RemindMe {
                     }
                     
                     ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (countdownSize.X / 2));
-                    if (display.ReverseCountdownSide != display.ReverseSideIcon) {
+                    if (display.ShowActionIcon && display.ReverseCountdownSide != display.ReverseSideIcon) {
                         TextShadowed(countdownText, display.TextColor, new Vector4(0, 0, 0, 0.5f), 2);
                     } else {
                         ImGui.TextColored(display.TextColor, countdownText);

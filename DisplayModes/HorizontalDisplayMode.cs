@@ -104,7 +104,7 @@ namespace RemindMe {
                         ImGui.SetCursorPosX(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X - display.RowSize / 2f - countdownSize.X / 2);
                     }
 
-                    if (display.ReverseSideIcon != display.ReverseCountdownSide) {
+                    if (display.ShowActionIcon && display.ReverseSideIcon != display.ReverseCountdownSide) {
                         TextShadowed(countdownText, display.TextColor, new Vector4(0, 0, 0, 0.5f), 2);
                     } else {
                         ImGui.TextColored(display.TextColor, countdownText);
