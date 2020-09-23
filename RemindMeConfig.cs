@@ -209,6 +209,8 @@ namespace RemindMe
                         }
                         case 24: {
                             // WHM
+                            StatusMonitorConfigDisplay(24, 121, 143, 18); // Aero
+                            StatusMonitorConfigDisplay(24, 132, 144, 18); // Aero II
                             StatusMonitorConfigDisplay(24, 16532, 1871, 30); // Dia
                             StatusMonitorConfigDisplay(24, 137, 158, 18); // Regen
                             StatusMonitorConfigDisplay(24, 133, 150, 15); // Medica II
