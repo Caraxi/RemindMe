@@ -12,6 +12,9 @@ namespace RemindMe {
                 ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize + ImGui.GetStyle().WindowPadding.X));
             }
             ImGui.SetWindowFontScale(display.TextScale);
+
+            var barSize = new Vector2(display.RowSize, ImGui.GetWindowHeight() - ImGui.GetStyle().WindowPadding.Y * 2);
+
             foreach (var timer in timerList) {
                 var cPosX = ImGui.GetCursorPosX();
                 var cPosY = ImGui.GetCursorPosY();
@@ -22,12 +25,24 @@ namespace RemindMe {
                 var drawList = ImGui.GetWindowDrawList();
 
                 var barTopLeft = ImGui.GetCursorScreenPos();
-                var barBottomRight = ImGui.GetCursorScreenPos() + new Vector2(display.RowSize, ImGui.GetWindowHeight() - ImGui.GetStyle().WindowPadding.Y * 2);
-
-                var barSize = barBottomRight - barTopLeft;
-
+                var barBottomRight = ImGui.GetCursorScreenPos() + barSize;
+                
                 var barFractionCompleteSize = new Vector2(0, barSize.Y * (1 - fraction));
                 var barFractionIncompleteSize = new Vector2(0, barSize.Y * fraction);
+
+                var hovered = false;
+                if (display.AllowClicking && timer.ClickAction != null) {
+                    // Check Mouse Position
+                    var mouse = ImGui.GetMousePos();
+                    var pos1 = ImGui.GetCursorScreenPos();
+                    var pos2 = ImGui.GetCursorScreenPos() + barSize;
+
+                    if (mouse.X > pos1.X && mouse.X < pos2.X && mouse.Y > pos1.Y && mouse.Y < pos2.Y) {
+                        display.isClickableHovered = true;
+                        hovered = true;
+                        ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                    }
+                }
 
                 // Draw Bar
                 if (timer.IsComplete) {
@@ -43,6 +58,8 @@ namespace RemindMe {
                     drawList.AddRectFilled(barTopLeft, barBottomRight - barFractionCompleteSize, ImGui.GetColorU32(display.BarBackgroundColor));
                     drawList.AddRectFilled(barTopLeft + barFractionIncompleteSize, barBottomRight, ImGui.GetColorU32(timer.ProgressColor));
                 }
+
+
 
                 if (display.ShowActionIcon) {
                     ImGui.SetCursorPosY(cPosY + barSize.Y + ImGui.GetStyle().FramePadding.Y - display.RowSize);
@@ -64,7 +81,17 @@ namespace RemindMe {
                     ImGui.TextColored(display.TextColor, countdownText);
                 }
 
+                if (hovered) {
+                    drawList.AddRect(barTopLeft, barBottomRight, 0xFF0000FF);
+                    drawList.AddRect(barTopLeft + Vector2.One, barBottomRight - Vector2.One, 0xFF0000FF);
+                }
+
+
                 ImGui.EndGroup();
+                if (ImGui.IsItemClicked(0)) {
+                    timer.ClickAction?.Invoke(this, timer.ClickParam);
+                }
+
                 ImGui.SameLine();
                 if (display.DirectionRtL) {
                     ImGui.SetCursorPosX(cPosX - display.RowSize - display.BarSpacing);

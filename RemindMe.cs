@@ -136,12 +136,15 @@ namespace RemindMe {
                     }
                 }
 
-                var flags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollbar;
+                var flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar;
 
                 if (display.Locked) {
-                    flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
+                    flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBackground;
+                    if (!display.AllowClicking || !display.isClickableHovered) {
+                        flags |= ImGuiWindowFlags.NoMouseInputs;
+                    }
                 }
-
+                
                 var TimerList = new List<DisplayTimer>();
 
                 try {
@@ -192,7 +195,7 @@ namespace RemindMe {
 
                             foreach (var a in PluginInterface.ClientState.Actors) {
                                 if (a != null) {
-                                    foreach (var se in a.GetStatusEffects()) {
+                                    foreach (var se in a.StatusEffects) {
                                         if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
                                         if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
                                         if (se.EffectId == (short) status.RowId) {
@@ -202,7 +205,9 @@ namespace RemindMe {
                                                 FinishedColor = display.AbilityReadyColor,
                                                 ProgressColor = display.StatusEffectColor,
                                                 IconId = action.Icon,
-                                                Name = $"{action.Name} on {a.Name}"
+                                                Name = $"{action.Name} on {a.Name}",
+                                                ClickAction = sd.ClickHandler,
+                                                ClickParam = a,
                                             });
                                         }
                                     }
@@ -241,15 +246,17 @@ namespace RemindMe {
                     ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
                     ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
 
-                    if (!display.Locked) {
+                    if (display.isClickableHovered || !display.Locked) {
                         ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(1, 0, 0, 1));
                         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1);
                     }
                     ImGui.Begin($"Display##{display.Guid}", flags);
-                    if (!display.Locked) {
+                    if (display.isClickableHovered || !display.Locked) {
                         ImGui.PopStyleColor();
                         ImGui.PopStyleVar();
                     }
+
+                    display.isClickableHovered = false;
 
                     switch (display.DisplayType) {
                         case 0: {

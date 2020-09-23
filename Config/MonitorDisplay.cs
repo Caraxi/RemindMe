@@ -23,6 +23,7 @@ namespace RemindMe.Config {
         public string Name = "New Display";
 
         public bool Locked = false;
+        public bool AllowClicking = false;
 
         public bool OnlyShowReady = false;
         public bool OnlyShowCooldown = false;
@@ -68,6 +69,7 @@ namespace RemindMe.Config {
         public int DisplayType = 0;
 
         [JsonIgnore] private bool tryDelete;
+        [JsonIgnore] internal bool isClickableHovered;
         
 
         public void DrawConfigEditor(RemindMeConfig mainConfig, ref Guid? deletedMonitor) {
@@ -75,8 +77,12 @@ namespace RemindMe.Config {
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputText($"###displayName{this.Guid}", ref this.Name, 32)) mainConfig.Save();
+            if (ImGui.Checkbox($"Clickable##{this.Guid}", ref this.AllowClicking)) mainConfig.Save();
+            ImGui.SameLine();
+            ImGui.TextDisabled("A clickable display will allow selecting targets from status effects\nbut may get in the way of other activity.");
             ImGui.Separator();
             if (ImGui.Combo("Display Type", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
+            
 
             if ((DisplayType == 1 || DisplayType == 2) && ImGui.Checkbox("Right to Left", ref DirectionRtL)) mainConfig.Save();
             if ((DisplayType == 0 || DisplayType == 2) && ImGui.Checkbox("Bottom to Top", ref DirectionBtT)) mainConfig.Save();

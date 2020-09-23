@@ -1,4 +1,6 @@
-﻿namespace RemindMe.Config {
+﻿using Dalamud.Game.ClientState.Actors.Types;
+
+namespace RemindMe.Config {
     public class StatusMonitor {
         public uint ClassJob;
         public uint Status;
@@ -10,5 +12,11 @@
             return sm.Status == this.Status && sm.ClassJob == this.ClassJob && sm.Action == this.Action;
         }
 
+        public void ClickHandler(RemindMe plugin, object param) {
+            if (param is Actor a) {
+                plugin.PluginInterface.ClientState.Targets.SetCurrentTarget(a);
+            }
+            
+        }
     }
 }

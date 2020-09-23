@@ -20,7 +20,7 @@ namespace RemindMe.Reminder {
         public override bool ShouldShow(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             return pluginInterface.ClientState.LocalPlayer.ClassJob.Id == 38  && 
                    pluginInterface.ClientState.LocalPlayer.Level >= 60 && 
-                   pluginInterface.ClientState.LocalPlayer.GetStatusEffects().All(s => s.EffectId != 1823);
+                   pluginInterface.ClientState.LocalPlayer.StatusEffects.All(s => s.EffectId != 1823);
         }
 
         public override ushort GetIconID(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {

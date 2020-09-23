@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Plugin;
 using ImGuiNET;
 using RemindMe.Config;
 
@@ -32,6 +33,20 @@ namespace RemindMe {
                 var barBottomRight = ImGui.GetCursorScreenPos() + new Vector2(display.RowSize);
 
                 var barSize = barBottomRight - barTopLeft;
+                var hovered = false;
+
+                if (display.AllowClicking && timer.ClickAction != null) {
+                    // Check Mouse Position
+                    var mouse = ImGui.GetMousePos();
+                    var pos1 = ImGui.GetCursorScreenPos();
+                    var pos2 = ImGui.GetCursorScreenPos() + barSize;
+
+                    if (mouse.X > pos1.X && mouse.X < pos2.X && mouse.Y > pos1.Y && mouse.Y < pos2.Y) {
+                        display.isClickableHovered = true;
+                        hovered = true;
+                        ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                    }
+                }
 
                 var barFractionCompleteSize = new Vector2(0, barSize.Y * (1 - fraction));
                 var barFractionIncompleteSize = new Vector2(0, barSize.Y * fraction);
@@ -49,6 +64,12 @@ namespace RemindMe {
                     drawList.AddRectFilled(barTopLeft, barBottomRight - barFractionCompleteSize, ImGui.GetColorU32(display.BarBackgroundColor));
                     drawList.AddRectFilled(barTopLeft + barFractionIncompleteSize, barBottomRight, ImGui.GetColorU32(timer.ProgressColor));
                 }
+
+                if (hovered) {
+                    drawList.AddRect(barTopLeft, barBottomRight, 0xFF0000FF);
+                    drawList.AddRect(barTopLeft + Vector2.One, barBottomRight - Vector2.One, 0xFF0000FF);
+                }
+
 
                 if (display.ShowActionIcon && timer.IconId > 0) {
 
@@ -74,6 +95,12 @@ namespace RemindMe {
                 }
 
                 ImGui.EndGroup();
+                if (timer.ClickAction != null) {
+                    if (hovered && ImGui.GetIO().MouseDown[0]) {
+                        timer.ClickAction?.Invoke(this, timer.ClickParam);
+                    }
+                }
+                
 
                 var newX = cPosX;
                 var newY = cPosY;

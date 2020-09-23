@@ -338,7 +338,7 @@ namespace RemindMe
 
                     if (pluginInterface.ClientState.Targets.CurrentTarget != null) {
                         ImGui.Text("\nEffects on Target: ");
-                        foreach (var se in pluginInterface.ClientState.Targets.CurrentTarget.GetStatusEffects()) {
+                        foreach (var se in pluginInterface.ClientState.Targets.CurrentTarget.StatusEffects) {
                             if (se.EffectId <= 0) continue;
                             var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
                             ImGui.Text($"\t{status.Name}: {status.RowId}");
@@ -347,7 +347,7 @@ namespace RemindMe
 
 
                     ImGui.Text("\nEffects on Self: ");
-                    foreach (var se in pluginInterface.ClientState.LocalPlayer.GetStatusEffects()) {
+                    foreach (var se in pluginInterface.ClientState.LocalPlayer.StatusEffects) {
                         if (se.EffectId <= 0) continue;
                         var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
                         ImGui.Text($"\t{status.Name}: {status.RowId}");

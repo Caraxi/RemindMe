@@ -39,12 +39,12 @@ namespace RemindMe.Reminder {
         public override bool ShouldShow(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             if (pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Role != 1) return false;
             // Check have stance
-            if (pluginInterface.ClientState.LocalPlayer.GetStatusEffects().Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
+            if (pluginInterface.ClientState.LocalPlayer.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
             // Check other tanks have stance
             foreach (var a in pluginInterface.ClientState.Actors) {
                 if (!(a is PlayerCharacter pc)) continue;
                 if (pc.ClassJob.GameData.Role != 1 || pc.ActorId == pluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                if (pc.GetStatusEffects().Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
+                if (pc.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
             }
 
             return true;

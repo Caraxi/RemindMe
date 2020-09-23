@@ -22,7 +22,8 @@ namespace RemindMe {
 
         public bool IsComplete => TimerCurrent >= TimerMax;
 
-        
+        public Action<RemindMe, object> ClickAction = null;
+        public object ClickParam = null;
 
     }
 }
