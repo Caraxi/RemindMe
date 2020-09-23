@@ -186,7 +186,8 @@ namespace RemindMe {
                             return true;
                         })) {
                             var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
-                            var action = ActionManager.GetAction(sd.Action);
+                            var action = PluginInterface.Data.Excel.GetSheet<Action>().GetRow(sd.Action);
+                            if (status == null || action == null) continue;
 
                             foreach (var a in PluginInterface.ClientState.Actors) {
                                 if (a != null) {

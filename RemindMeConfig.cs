@@ -343,7 +343,7 @@ namespace RemindMe
                         }
                     }
 
-                    var lastAction = plugin.ActionManager.GetAction(plugin.ActionManager.LastActionId);
+                    var lastAction = pluginInterface.Data.GetExcelSheet<Action>().GetRow(plugin.ActionManager.LastActionId);
                     ImGui.Text(lastAction != null ? $"\nLast Action: [{lastAction.RowId}] {lastAction.Name}" : $"\nLast Action: [{plugin.ActionManager.LastActionId}] Unknown");
                      
                     if (lastAction != null) {
