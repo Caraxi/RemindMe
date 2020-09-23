@@ -84,7 +84,7 @@ namespace RemindMe
                 ImGui.EndTabItem();
             }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Class Actions")) {
+            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Actions")) {
 
                 if (MonitorDisplays.Count > 0) {
                     ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
@@ -171,7 +171,7 @@ namespace RemindMe
                 if (MonitorDisplays.Count > 0) {
 
                     ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
-                    ImGui.SetColumnWidth(0, 180);
+                    ImGui.SetColumnWidth(0, 220);
                     for (var i = 1; i <= MonitorDisplays.Count; i++) {
                         ImGui.SetColumnWidth(i, 100);
                     }
@@ -182,6 +182,7 @@ namespace RemindMe
                         ImGui.NextColumn();
                     }
 
+                    ImGui.Separator();
                     ImGui.Separator();
 
                     switch (pluginInterface.ClientState.LocalPlayer.ClassJob.Id) {
@@ -383,6 +384,22 @@ namespace RemindMe
             if (status != null && action != null) {
                 var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, Action = action.RowId, MaxDuration = masDuration};
 
+                var actionIcon = plugin.IconManager.GetActionIcon(action);
+                if (actionIcon != null) {
+                    ImGui.Image(actionIcon.ImGuiHandle, new Vector2(24));
+                } else {
+                    ImGui.Dummy(new Vector2(24));
+                }
+                ImGui.SameLine();
+                var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
+                if (statusIcon != null) {
+                    ImGui.Image(statusIcon.ImGuiHandle, new Vector2(18, 24));
+                } else {
+                    ImGui.Dummy(new Vector2(18, 24));
+                }
+                ImGui.SameLine();
+
+
                 if (action.Name != status.Name) {
                     ImGui.Text($"{status.Name} ({action.Name})");
                 } else {
@@ -410,7 +427,7 @@ namespace RemindMe
                     ImGui.NextColumn();
                 }
 
-
+                ImGui.Separator();
             }
 
         }
