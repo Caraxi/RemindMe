@@ -62,12 +62,17 @@ namespace RemindMe {
 
 
                 if (display.ShowActionIcon) {
-                    ImGui.SetCursorPosY(cPosY + barSize.Y + ImGui.GetStyle().FramePadding.Y - display.RowSize);
-                    ImGui.SetCursorPosX(cPosX + ImGui.GetStyle().FramePadding.X);
+                    var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
+                    if (display.ReverseSideIcon) {
+                        ImGui.SetCursorPosY(cPosY + (barSize.X - iconSize.X) / 2);
+                    } else {
+                        ImGui.SetCursorPosY(cPosY + barSize.Y - iconSize.Y - (barSize.X - iconSize.X) / 2);
+                    }
+                    ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (iconSize.X / 2));
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
                         if (icon != null) {
-                            ImGui.Image(icon.ImGuiHandle, new Vector2(display.RowSize - ImGui.GetStyle().FramePadding.X * 2, display.RowSize - ImGui.GetStyle().FramePadding.X * 2));
+                            ImGui.Image(icon.ImGuiHandle, iconSize);
                         }
                     }
                 }

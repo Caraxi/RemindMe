@@ -142,6 +142,13 @@ namespace RemindMe.Config {
                     var text = ReverseSideIcon ? "Right" : "Left";
                     ImGui.SliderInt("###actionIconReverse", ref v, 0, 1, text);
                     if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                } else if (DisplayType == 1) {
+                    ImGui.SameLine();
+                    var v = ReverseSideIcon ? 1 : 0;
+                    var text = ReverseSideIcon ? "Top" : "Bottom";
+                    ImGui.VSliderInt("###actionIconReverse", new Vector2(60, 25), ref v, 0, 1, text);
+                    if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+
                 }
             }
 
