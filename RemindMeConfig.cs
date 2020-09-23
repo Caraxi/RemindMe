@@ -84,7 +84,7 @@ namespace RemindMe
                 ImGui.EndTabItem();
             }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Tracked Abilities")) {
+            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Class Actions")) {
 
                 if (MonitorDisplays.Count > 0) {
                     ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
@@ -167,7 +167,7 @@ namespace RemindMe
                 ImGui.EndTabItem();
             }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Tracked Status Effects")) {
+            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Status Effects")) {
                 if (MonitorDisplays.Count > 0) {
 
                     ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
