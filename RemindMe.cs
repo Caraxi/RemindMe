@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using ImGuiNET;
@@ -32,6 +33,10 @@ namespace RemindMe {
 
         internal Stopwatch OutOfCombatTimer = new Stopwatch();
 
+        internal Dictionary<uint, List<Actor>> ActorsWithStatus = new Dictionary<uint, List<Actor>>();
+        private Stopwatch cacheTimer = new Stopwatch();
+
+
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
@@ -40,12 +45,14 @@ namespace RemindMe {
             IconManager?.Dispose();
             generalStopwatch.Stop();
             OutOfCombatTimer.Stop();
+            cacheTimer.Stop();
             RemoveCommands();
             PluginInterface.Dispose();
         }
 
         public void Initialize(DalamudPluginInterface pluginInterface) {
             generalStopwatch.Start();
+            cacheTimer.Start();
 #if DEBUG
             drawConfigWindow = true;
 #endif
@@ -71,6 +78,7 @@ namespace RemindMe {
         }
 
         private void FrameworkOnOnUpdateEvent(Framework framework) {
+
             if (PluginInterface.ClientState?.LocalPlayer == null) return;
             var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
             if (OutOfCombatTimer.IsRunning && inCombat) {
@@ -81,6 +89,23 @@ namespace RemindMe {
             } else if (!OutOfCombatTimer.IsRunning && !inCombat) {
                 OutOfCombatTimer.Start();
             }
+
+
+            if (cacheTimer.ElapsedMilliseconds >= PluginConfig.PollingRate) {
+                cacheTimer.Restart();
+                ActorsWithStatus.Clear();
+                foreach (var a in PluginInterface.ClientState.Actors) {
+                    foreach (var s in a.StatusEffects) {
+                        if (s.EffectId != 0) {
+                            var eid = (uint) s.EffectId;
+                            if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
+                            ActorsWithStatus[eid].Add(a);
+                        }
+                    }
+                }
+            }
+
+
         }
 
         private void OnOpenConfigUi(object sender, EventArgs e) {
@@ -189,11 +214,13 @@ namespace RemindMe {
                             if (sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
                             return true;
                         })) {
-                            var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
-                            var action = PluginInterface.Data.Excel.GetSheet<Action>().GetRow(sd.Action);
+                            var status = sd.StatusData ??= PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
+                            var action = sd.ActionData ??= PluginInterface.Data.Excel.GetSheet<Action>().GetRow(sd.Action);
                             if (status == null || action == null) continue;
 
-                            foreach (var a in PluginInterface.ClientState.Actors) {
+                            if (!ActorsWithStatus.ContainsKey(status.RowId)) continue;
+
+                            foreach (var a in ActorsWithStatus[status.RowId]) {
                                 if (a != null) {
                                     foreach (var se in a.StatusEffects) {
                                         if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;

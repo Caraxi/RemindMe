@@ -31,6 +31,7 @@ namespace RemindMe
         public List<GeneralReminder> GeneralReminders = new List<GeneralReminder>();
 
         private bool showGlobalCooldowns;
+        public long PollingRate = 100;
         private const int GlobalCooldownGroup = 58;
 
         public RemindMeConfig() { }

@@ -1,4 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Actors.Types;
+using Lumina.Excel.GeneratedSheets;
+using Newtonsoft.Json;
 
 namespace RemindMe.Config {
     public class StatusMonitor {
@@ -6,6 +8,8 @@ namespace RemindMe.Config {
         public uint Status;
         public uint Action;
         public float MaxDuration = 30;
+        [JsonIgnore] public Status StatusData { get; set; }
+        [JsonIgnore] public Action ActionData { get; set; }
 
         public override bool Equals(object obj) {
             if (!(obj is StatusMonitor sm)) return false;
