@@ -34,6 +34,7 @@ namespace RemindMe.Config {
 
         public bool ShowActionIcon = true;
         public float ActionIconScale = 0.9f;
+        public bool ReverseSideIcon = false;
 
         public bool OnlyInCombat = true;
         public bool KeepVisibleOutsideCombat = false;
@@ -132,6 +133,16 @@ namespace RemindMe.Config {
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
                 if (ImGui.SliderFloat($"###actionIconScale{this.Guid}", ref this.ActionIconScale, 0.1f, 1f, "Scale", 1f)) mainConfig.Save();
+
+                if (DisplayType == 0) {
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(75);
+
+                    var v = ReverseSideIcon ? 1 : 0;
+                    var text = ReverseSideIcon ? "Right" : "Left";
+                    ImGui.SliderInt("###actionIconReverse", ref v, 0, 1, text);
+                    if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                }
             }
 
             if (DisplayType < 2 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();

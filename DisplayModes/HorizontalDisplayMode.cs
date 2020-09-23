@@ -72,7 +72,11 @@ namespace RemindMe {
                     var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                     var x = ImGui.GetCursorPosX();
                     ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (iconSize.Y / 2));
-                    ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
+                    if (display.ReverseSideIcon) {
+                        ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize / 2f) - (iconSize.X / 2) - ImGui.GetStyle().WindowPadding.X);
+                    } else {
+                        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
+                    }
 
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
