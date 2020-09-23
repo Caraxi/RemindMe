@@ -89,9 +89,9 @@ namespace RemindMe
                 if (MonitorDisplays.Count > 0) {
                     ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
 
-                    ImGui.SetColumnWidth(0, 180);
                     for (var i = 1; i <= MonitorDisplays.Count; i++) {
                         ImGui.SetColumnWidth(i, 100);
+                    ImGui.SetColumnWidth(0, 220);
                     }
 
 
@@ -106,10 +106,18 @@ namespace RemindMe
                     }
 
                     ImGui.Separator();
+                    ImGui.Separator();
                     var gcdTextSize = ImGui.CalcTextSize("[GCD]");
                     foreach (var a in plugin.ActionList.Where(a => (showGlobalCooldowns || a.CooldownGroup != GlobalCooldownGroup || MonitorDisplays.Any(d => d.Value.Cooldowns.Any(c => c.ActionId == a.RowId && c.ClassJob == pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) && a.IsPvP == false && a.ClassJobCategory.Value.HasClass(pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) {
                         var cdm = new CooldownMonitor { ActionId = a.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id };
 
+                        var icon = plugin.IconManager.GetIconTexture(a.Icon);
+                        if (icon != null) {
+                            ImGui.Image(icon.ImGuiHandle, new Vector2(25));
+                        } else {
+                            ImGui.Dummy(new Vector2(24));
+                        }
+                        ImGui.SameLine();
                         if (a.CooldownGroup == GlobalCooldownGroup) {
                             var x = ImGui.GetCursorPosX();
                             ImGui.SetCursorPosX(ImGui.GetColumnWidth() - gcdTextSize.X);
@@ -144,6 +152,7 @@ namespace RemindMe
                             ImGui.NextColumn();
                         }
 
+                        ImGui.Separator();
 
                     }
 
