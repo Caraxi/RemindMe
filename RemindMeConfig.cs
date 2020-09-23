@@ -327,20 +327,18 @@ namespace RemindMe
                     if (pluginInterface.ClientState.Targets.CurrentTarget != null) {
                         ImGui.Text("\nEffects on Target: ");
                         foreach (var se in pluginInterface.ClientState.Targets.CurrentTarget.GetStatusEffects()) {
-                            if (se.EffectId > 0) {
-                                var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
-                                ImGui.Text($"\t{status.Name}: {status.RowId}");
-                            }
+                            if (se.EffectId <= 0) continue;
+                            var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
+                            ImGui.Text($"\t{status.Name}: {status.RowId}");
                         }
                     }
 
 
                     ImGui.Text("\nEffects on Self: ");
                     foreach (var se in pluginInterface.ClientState.LocalPlayer.GetStatusEffects()) {
-                        if (se.EffectId > 0) {
-                            var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
-                            ImGui.Text($"\t{status.Name}: {status.RowId}");
-                        }
+                        if (se.EffectId <= 0) continue;
+                        var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
+                        ImGui.Text($"\t{status.Name}: {status.RowId}");
                     }
 
                     var lastAction = pluginInterface.Data.GetExcelSheet<Action>().GetRow(plugin.ActionManager.LastActionId);
@@ -354,8 +352,9 @@ namespace RemindMe
                     ImGui.Text($"Last Action Max Charges: {lastAction.MaxCharges}");
 
 
-                } catch {}
-                
+                } catch {
+                    // ignored
+                }
 
                 ImGui.EndTabItem();
 
