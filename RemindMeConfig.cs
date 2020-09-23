@@ -111,7 +111,7 @@ namespace RemindMe
                     foreach (var a in plugin.ActionList.Where(a => (showGlobalCooldowns || a.CooldownGroup != GlobalCooldownGroup || MonitorDisplays.Any(d => d.Value.Cooldowns.Any(c => c.ActionId == a.RowId && c.ClassJob == pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) && a.IsPvP == false && a.ClassJobCategory.Value.HasClass(pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) {
                         var cdm = new CooldownMonitor { ActionId = a.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id };
 
-                        var icon = plugin.IconManager.GetIconTexture(a.Icon);
+                        var icon = plugin.IconManager.GetActionIcon(a);
                         if (icon != null) {
                             ImGui.Image(icon.ImGuiHandle, new Vector2(25));
                         } else {

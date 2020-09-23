@@ -56,7 +56,8 @@ namespace RemindMe {
             PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
 
             IconManager = new IconManager(pluginInterface);
-            ActionList = PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction).ToList();
+            var forcedActions = new uint[] {3};
+            ActionList = PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction || forcedActions.Contains(a.RowId)).ToList();
 
             actionManagerStatic = pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("48 89 05 ?? ?? ?? ?? C3 CC C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 48 8D 0D ?? ?? ?? ?? E9 ?? ?? ?? ??");
 
@@ -167,7 +168,7 @@ namespace RemindMe {
                                     TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
                                     FinishedColor = display.AbilityReadyColor,
                                     ProgressColor = display.AbilityCooldownColor,
-                                    IconId = action.Icon,
+                                    IconId = IconManager.GetActionIconId(action),
                                     Name = action.Name
                                 });
                             }
