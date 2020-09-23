@@ -184,6 +184,14 @@ namespace RemindMe.Config {
                         if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
                         break;
                     }
+                    case 1: {
+                        ImGui.SameLine();
+                        var v = ReverseCountdownSide ? 0 : 1;
+                        var text = ReverseCountdownSide ? "Bottom" : "Top";
+                        ImGui.VSliderInt("###countdownReverse", new Vector2(60, 25), ref v, 0, 1, text);
+                        if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
+                        break;
+                    }
                 }
 
 

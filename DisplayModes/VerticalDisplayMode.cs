@@ -60,9 +60,8 @@ namespace RemindMe {
                 }
 
 
-
+                var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                 if (display.ShowActionIcon) {
-                    var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                     if (display.ReverseSideIcon) {
                         ImGui.SetCursorPosY(cPosY + (barSize.X - iconSize.X) / 2);
                     } else {
@@ -78,12 +77,22 @@ namespace RemindMe {
                 }
 
                 if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
-                    var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
+                    var countdownValue = Math.Abs(timer.TimerRemaining);
+                    var countdownText = countdownValue.ToString(countdownValue >= 100 ? "F0" : "F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
-                    ImGui.SetCursorPosY(cPosY + ImGui.GetStyle().FramePadding.Y);
+                    if (display.ReverseCountdownSide) {
+                        ImGui.SetCursorPosY(cPosY + barSize.Y - (display.RowSize / 2f) - countdownSize.Y / 2);
+                    } else {
+                        ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - countdownSize.Y / 2);
+                    }
+                    
                     ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (countdownSize.X / 2));
-
-                    ImGui.TextColored(display.TextColor, countdownText);
+                    if (display.ReverseCountdownSide != display.ReverseSideIcon) {
+                        TextShadowed(countdownText, display.TextColor, new Vector4(0, 0, 0, 0.5f), 2);
+                    } else {
+                        ImGui.TextColored(display.TextColor, countdownText);
+                    }
+                    
                 }
 
                 if (hovered) {
