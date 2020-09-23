@@ -67,20 +67,22 @@ namespace RemindMe {
                 }
 
                 ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
+                var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
 
                 if (display.ShowActionIcon) {
-                    var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                     var x = ImGui.GetCursorPosX();
-                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (iconSize.Y / 2));
-                    if (display.ReverseSideIcon) {
-                        ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize / 2f) - (iconSize.X / 2) - ImGui.GetStyle().WindowPadding.X);
-                    } else {
-                        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
-                    }
-
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
                         if (icon != null) {
+
+                            
+                            ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (iconSize.Y / 2));
+                            if (display.ReverseSideIcon) {
+                                ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize / 2f) - (iconSize.X / 2) - ImGui.GetStyle().WindowPadding.X);
+                            } else {
+                                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
+                            }
+
                             ImGui.Image(icon.ImGuiHandle, iconSize);
                         }
                     }
@@ -88,19 +90,50 @@ namespace RemindMe {
                     ImGui.SetCursorPosX(x + (display.RowSize / 2f) + (iconSize.X / 2) + ImGui.GetStyle().ItemSpacing.X);
                 }
 
-                if (display.ShowSkillName) {
-                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
-                    ImGui.TextColored(display.TextColor, $"{timer.Name}");
-                }
 
                 if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
-                    var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
+                    float time = Math.Abs(timer.TimerRemaining);
+                    var countdownText = time.ToString(time >= 100 ? "F0" : "F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
 
                     ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - countdownSize.Y / 2f));
-                    ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (countdownSize.X + ImGui.GetStyle().WindowPadding.X + ImGui.GetStyle().FramePadding.X));
 
-                    ImGui.TextColored(display.TextColor, countdownText);
+                    if (display.ReverseCountdownSide) {
+                        ImGui.SetCursorPosX(ImGui.GetStyle().WindowPadding.X + display.RowSize / 2f - countdownSize.X / 2);
+                    } else {
+                        ImGui.SetCursorPosX(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X - display.RowSize / 2f - countdownSize.X / 2);
+                    }
+
+                    if (display.ReverseSideIcon != display.ReverseCountdownSide) {
+                        TextShadowed(countdownText, display.TextColor, new Vector4(0, 0, 0, 0.5f), 2);
+                    } else {
+                        ImGui.TextColored(display.TextColor, countdownText);
+                    }
+
+                    
+                }
+
+                if (display.ShowSkillName) {
+                    
+                    if (display.SkillNameRight) {
+                        var textSize = ImGui.CalcTextSize(timer.Name);
+                        ImGui.SetCursorPosX(
+                            ImGui.GetWindowWidth() - 
+                            textSize.X - 
+                            ImGui.GetStyle().WindowPadding.X - 
+                            ImGui.GetStyle().FramePadding.X -
+                            ((display.ShowActionIcon && display.ReverseSideIcon) || (display.ShowCountdown && !display.ReverseCountdownSide) ? (iconSize.X + ImGui.GetStyle().ItemSpacing.X) : 0)
+                            );
+                    } else {
+                        ImGui.SetCursorPosX(
+                            ImGui.GetStyle().WindowPadding.X +
+                            ImGui.GetStyle().FramePadding.X +
+                            ((display.ShowActionIcon && !display.ReverseSideIcon) || (display.ShowCountdown && display.ReverseCountdownSide) ? (iconSize.X + ImGui.GetStyle().ItemSpacing.X) : 0)
+                            );
+                    }
+
+                    ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
+                    ImGui.TextColored(display.TextColor, $"{timer.Name}");
                 }
 
                 if (hovered) {

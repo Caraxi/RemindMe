@@ -41,8 +41,10 @@ namespace RemindMe.Config {
         public int KeepVisibleOutsideCombatSeconds = 15;
 
         public bool ShowSkillName = true;
+        public bool SkillNameRight = false;
         public bool ShowCountdown = false;
         public bool ShowCountdownReady = false;
+        public bool ReverseCountdownSide = false;
 
         public bool PulseReady = false;
         public float PulseSpeed = 1.0f;
@@ -74,6 +76,7 @@ namespace RemindMe.Config {
         
 
         public void DrawConfigEditor(RemindMeConfig mainConfig, ref Guid? deletedMonitor) {
+            ImGui.Indent(10);
             if (ImGui.Checkbox($"Lock Display##{this.Guid}", ref this.Locked)) mainConfig.Save();
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150);
@@ -130,33 +133,63 @@ namespace RemindMe.Config {
             }
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
             if (this.ShowActionIcon) {
+                
+                
+                switch (DisplayType) {
+                    case 0: {
+                        ImGui.SameLine();
+                        ImGui.SetNextItemWidth(75);
+                        var v = ReverseSideIcon ? 1 : 0;
+                        var text = ReverseSideIcon ? "Right" : "Left";
+                        ImGui.SliderInt("###actionIconReverse", ref v, 0, 1, text);
+                        if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                        break;
+                    }
+                    case 1: {
+                        ImGui.SameLine();
+                        var v = ReverseSideIcon ? 1 : 0;
+                        var text = ReverseSideIcon ? "Top" : "Bottom";
+                        ImGui.VSliderInt("###actionIconReverse", new Vector2(60, 25), ref v, 0, 1, text);
+                        if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                        break;
+                    }
+                }
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
                 if (ImGui.SliderFloat($"###actionIconScale{this.Guid}", ref this.ActionIconScale, 0.1f, 1f, "Scale", 1f)) mainConfig.Save();
 
-                if (DisplayType == 0) {
-                    ImGui.SameLine();
-                    ImGui.SetNextItemWidth(75);
-
-                    var v = ReverseSideIcon ? 1 : 0;
-                    var text = ReverseSideIcon ? "Right" : "Left";
-                    ImGui.SliderInt("###actionIconReverse", ref v, 0, 1, text);
-                    if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
-                } else if (DisplayType == 1) {
-                    ImGui.SameLine();
-                    var v = ReverseSideIcon ? 1 : 0;
-                    var text = ReverseSideIcon ? "Top" : "Bottom";
-                    ImGui.VSliderInt("###actionIconReverse", new Vector2(60, 25), ref v, 0, 1, text);
-                    if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
-
-                }
             }
 
-            if (DisplayType < 2 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
+            if (DisplayType == 0 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
+
+            if (DisplayType == 0 && this.ShowSkillName) {
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(75);
+                var v = SkillNameRight ? 1 : 0;
+                var text = SkillNameRight ? "Right" : "Left";
+                ImGui.SliderInt("###skillNameAlign", ref v, 0, 1, text);
+                if (ImGui.IsItemClicked(0)) SkillNameRight = !SkillNameRight;
+            }
+
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown) {
+
+                switch (DisplayType) {
+                    case 0: {
+                        ImGui.SameLine();
+                        ImGui.SetNextItemWidth(75);
+                        var v = ReverseCountdownSide ? 0 : 1;
+                        var text = ReverseCountdownSide ? "Left" : "Right";
+                        ImGui.SliderInt("###actionCountdownReverse", ref v, 0, 1, text);
+                        if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
+                        break;
+                    }
+                }
+
+
+
                 ImGui.Indent(20);
-                if (ImGui.Checkbox($"  > Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
+                if (ImGui.Checkbox($"Show Countup while ready##{this.Guid}", ref this.ShowCountdownReady)) mainConfig.Save();
                 ImGui.Indent(-20);
 
             }
@@ -231,7 +264,7 @@ namespace RemindMe.Config {
             
 
             ImGui.Separator();
-
+            ImGui.Indent(-10);
         }
 
     }
