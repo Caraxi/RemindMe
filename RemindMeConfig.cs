@@ -3,6 +3,7 @@ using Dalamud.Plugin;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -14,8 +15,9 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe
 {
-    public class RemindMeConfig : IPluginConfiguration
-    {
+    public class RemindMeConfig : IPluginConfiguration {
+        [NonSerialized] private float debugFraction = 0;
+
         [NonSerialized]
         private DalamudPluginInterface pluginInterface;
 
@@ -364,6 +366,46 @@ namespace RemindMe
 
                     ImGui.Text($"Last Action Max Charges: {lastAction.MaxCharges}");
 
+
+                    // Bars
+
+                    var sw = new Stopwatch();
+                    sw.Start();
+
+                    ImGui.SliderFloat("Debug Bars Fill Percent", ref debugFraction, 0, 1);
+                    
+
+                    var completeColor = new Vector4(1f, 0f, 0f, 0.25f);
+                    var incompleteColor = new Vector4(0f, 0f, 1f, 0.25f);
+
+                    var usedFraction = (float) Math.Min(1, Math.Max(0, debugFraction));
+
+                    ImGui.Text($"{usedFraction:F2}");
+                    sw.Start();
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(40, 200), usedFraction, RemindMe.FillDirection.FromBottom, incompleteColor, completeColor);
+                    ImGui.SameLine();
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(40, 200), usedFraction, RemindMe.FillDirection.FromTop, incompleteColor, completeColor);
+
+                    ImGui.SameLine();
+                    ImGui.BeginGroup();
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(200, 40), usedFraction, RemindMe.FillDirection.FromLeft, incompleteColor, completeColor);
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(200, 40), usedFraction, RemindMe.FillDirection.FromRight, incompleteColor, completeColor);
+                    usedFraction = 1 - usedFraction;
+
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(40, 200), usedFraction, RemindMe.FillDirection.FromBottom, incompleteColor, completeColor);
+                    ImGui.SameLine();
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(40, 200), usedFraction, RemindMe.FillDirection.FromTop, incompleteColor, completeColor);
+
+                    ImGui.SameLine();
+                    ImGui.BeginGroup();
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(200, 40), usedFraction, RemindMe.FillDirection.FromLeft, incompleteColor, completeColor);
+                    plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(200, 40), usedFraction, RemindMe.FillDirection.FromRight, incompleteColor, completeColor);
+
+                    ImGui.EndGroup();
+                    ImGui.EndGroup();
+
+                    sw.Stop();
+                    ImGui.Text($"Time to draw bars: {sw.ElapsedTicks}");
 
                 } catch {
                     // ignored
