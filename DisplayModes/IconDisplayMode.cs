@@ -56,21 +56,7 @@ namespace RemindMe {
                 var barFractionCompleteSize = new Vector2(0, barSize.Y * (1 - fraction));
                 var barFractionIncompleteSize = new Vector2(0, barSize.Y * fraction);
 
-                if (timer.IsComplete) {
-                    var finishedColor = Vector4.Zero + timer.FinishedColor;
-                    if (display.PulseReady) {
-                        var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
-                        if (timer.FinishedColor.W < 0.75) {
-                            finishedColor += new Vector4(0, 0, 0, s);
-                        } else {
-                            finishedColor -= new Vector4(0, 0, 0, s);
-                        }
-                    }
-                    drawList.AddRectFilled(barTopLeft, barBottomRight, ImGui.GetColorU32(finishedColor));
-                } else {
-                    drawList.AddRectFilled(barTopLeft, barBottomRight - barFractionCompleteSize, ImGui.GetColorU32(display.BarBackgroundColor));
-                    drawList.AddRectFilled(barTopLeft + barFractionIncompleteSize, barBottomRight, ImGui.GetColorU32(timer.ProgressColor));
-                }
+                DrawBar(barTopLeft, barSize, 1 - fraction, display.IconDisplayFillDirection, GetBarBackgroundColor(display, timer), timer.ProgressColor);
 
                 if (hovered) {
                     drawList.AddRect(barTopLeft, barBottomRight, 0xFF0000FF);

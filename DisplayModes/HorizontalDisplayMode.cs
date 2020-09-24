@@ -19,7 +19,6 @@ namespace RemindMe {
 
                 ImGui.BeginGroup();
 
-                
                 var hovered = false;
 
                 if (display.AllowClicking && timer.ClickAction != null) {
@@ -33,28 +32,6 @@ namespace RemindMe {
                         hovered = true;
                         ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                     }
-                }
-
-                var bgColor = display.BarBackgroundColor;
-
-
-                if (timer.IsComplete) {
-
-                    if (display.PulseReady) {
-                        var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
-
-                        if (timer.FinishedColor.W < 0.75) {
-                            bgColor = timer.FinishedColor + new Vector4(0, 0, 0, s);
-                        } else {
-                            bgColor = timer.FinishedColor - new Vector4(0, 0, 0, s);
-                        }
-
-                    } else {
-                        bgColor = timer.FinishedColor;
-                    }
-
-                } else {
-                    bgColor = display.BarBackgroundColor;
                 }
 
                 var size = ImGui.CalcTextSize(timer.Name);
@@ -71,11 +48,8 @@ namespace RemindMe {
                     fraction = 1 - fraction;
                 }
 
-                // ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
+                DrawBar(ImGui.GetCursorScreenPos(), barSize, 1 - fraction, display.ReverseFill ? FillDirection.FromRight : FillDirection.FromLeft, GetBarBackgroundColor(display, timer), timer.ProgressColor);
 
-                DrawBar(ImGui.GetCursorScreenPos(), barSize, 1 - fraction, FillDirection.FromLeft, bgColor, timer.ProgressColor);
-                
-                
                 var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
 
                 if (display.ShowActionIcon) {
@@ -99,7 +73,6 @@ namespace RemindMe {
                     ImGui.SetCursorPosX(x + (display.RowSize / 2f) + (iconSize.X / 2) + ImGui.GetStyle().ItemSpacing.X);
                 }
 
-
                 if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
                     float time = Math.Abs(timer.TimerRemaining);
                     var countdownText = time.ToString(time >= 100 ? "F0" : "F1");
@@ -118,8 +91,6 @@ namespace RemindMe {
                     } else {
                         ImGui.TextColored(display.TextColor, countdownText);
                     }
-
-                    
                 }
 
                 if (display.ShowSkillName) {

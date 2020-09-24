@@ -2,7 +2,7 @@
 using System.Numerics;
 
 namespace RemindMe {
-    internal class DisplayTimer {
+    public class DisplayTimer {
 
         public Vector4 ProgressColor;
         public Vector4 FinishedColor;

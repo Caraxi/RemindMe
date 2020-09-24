@@ -30,9 +30,6 @@ namespace RemindMe {
 
                 var barTopLeft = ImGui.GetCursorScreenPos();
                 var barBottomRight = ImGui.GetCursorScreenPos() + barSize;
-                
-                var barFractionCompleteSize = new Vector2(0, barSize.Y * (1 - fraction));
-                var barFractionIncompleteSize = new Vector2(0, barSize.Y * fraction);
 
                 var hovered = false;
                 if (display.AllowClicking && timer.ClickAction != null) {
@@ -47,25 +44,8 @@ namespace RemindMe {
                         ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                     }
                 }
-
-                // Draw Bar
-                if (timer.IsComplete) {
-                    var finishedColor = Vector4.Zero + timer.FinishedColor;
-                    if (display.PulseReady) {
-                        var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
-                        if (timer.FinishedColor.W < 0.75) {
-                            finishedColor += new Vector4(0, 0, 0, s);
-                        } else {
-                            finishedColor -= new Vector4(0, 0, 0, s);
-                        }
-                    }
-                    drawList.AddRectFilled(barTopLeft, barBottomRight, ImGui.GetColorU32(finishedColor));
-                } else {
-                    drawList.AddRectFilled(barTopLeft, barBottomRight - barFractionCompleteSize, ImGui.GetColorU32(display.BarBackgroundColor));
-                    drawList.AddRectFilled(barTopLeft + barFractionIncompleteSize, barBottomRight, ImGui.GetColorU32(timer.ProgressColor));
-                }
-
-
+   
+                DrawBar(barTopLeft, barSize, 1 - fraction, display.ReverseFill ? FillDirection.FromTop : FillDirection.FromBottom, GetBarBackgroundColor(display, timer), timer.ProgressColor);
                 var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                 if (display.ShowActionIcon) {
                     if (display.ReverseSideIcon) {

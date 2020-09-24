@@ -51,6 +51,8 @@ namespace RemindMe.Config {
         public float PulseIntensity = 1.0f;
 
         public bool FillToComplete = false;
+        public bool ReverseFill = false;
+        public RemindMe.FillDirection IconDisplayFillDirection = RemindMe.FillDirection.FromBottom;
 
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
@@ -76,7 +78,7 @@ namespace RemindMe.Config {
         [JsonIgnore] internal bool IsClickableHovered;
         
 
-        public void DrawConfigEditor(RemindMeConfig mainConfig, ref Guid? deletedMonitor) {
+        public void DrawConfigEditor(RemindMeConfig mainConfig, RemindMe plugin, ref Guid? deletedMonitor) {
             ImGui.Indent(10);
             if (ImGui.Checkbox($"Lock Display##{this.Guid}", ref this.Locked)) mainConfig.Save();
             ImGui.SameLine();
@@ -133,10 +135,20 @@ namespace RemindMe.Config {
                 mainConfig.Save();
             }
             if (ImGui.Checkbox($"Fill bar to complete##{this.Guid}", ref this.FillToComplete)) mainConfig.Save();
+            if (DisplayType < 2 && ImGui.Checkbox($"Reverse fill direction##{this.Guid}", ref this.ReverseFill)) mainConfig.Save();
+            if (DisplayType == 2) { 
+                ImGui.BeginGroup();
+                plugin.DrawBar(ImGui.GetCursorScreenPos(), new Vector2(22, 22), 0.45f, IconDisplayFillDirection, new Vector4(0.3f, 0.3f, 0.3f, 1), new Vector4(0.8f, 0.8f, 0.8f, 1), 3); 
+                ImGui.SameLine();
+                ImGui.Text("Fill Direction");
+                ImGui.EndGroup();
+                if (ImGui.IsItemClicked(0)) {
+                   IconDisplayFillDirection = (RemindMe.FillDirection) ((((int) IconDisplayFillDirection) + 1) % Enum.GetValues(typeof(RemindMe.FillDirection)).Length);
+                }
+            }
+            
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
             if (this.ShowActionIcon) {
-                
-                
                 switch (DisplayType) {
                     case 0: {
                         ImGui.SameLine();

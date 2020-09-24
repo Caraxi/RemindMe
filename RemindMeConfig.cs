@@ -75,7 +75,7 @@ namespace RemindMe
                 Guid? deletedMonitor = null;
                 foreach (var m in MonitorDisplays.Values) {
                     if (ImGui.CollapsingHeader($"{m.Name}###configDisplay{m.Guid}")) {
-                        m.DrawConfigEditor(this, ref deletedMonitor);
+                        m.DrawConfigEditor(this, plugin, ref deletedMonitor);
                     }
                 }
 
