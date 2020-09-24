@@ -42,7 +42,7 @@ namespace RemindMe {
                     var pos2 = ImGui.GetCursorScreenPos() + barSize;
 
                     if (mouse.X > pos1.X && mouse.X < pos2.X && mouse.Y > pos1.Y && mouse.Y < pos2.Y) {
-                        display.isClickableHovered = true;
+                        display.IsClickableHovered = true;
                         hovered = true;
                         ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                     }

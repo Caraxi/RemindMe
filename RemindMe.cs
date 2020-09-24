@@ -165,7 +165,7 @@ namespace RemindMe {
 
                 if (display.Locked) {
                     flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoBackground;
-                    if (!display.AllowClicking || !display.isClickableHovered) {
+                    if (!display.AllowClicking || !display.IsClickableHovered) {
                         flags |= ImGuiWindowFlags.NoMouseInputs;
                     }
                 }
@@ -273,17 +273,17 @@ namespace RemindMe {
                     ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
                     ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
 
-                    if (display.isClickableHovered || !display.Locked) {
+                    if (display.IsClickableHovered || !display.Locked) {
                         ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(1, 0, 0, 1));
                         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1);
                     }
                     ImGui.Begin($"Display##{display.Guid}", flags);
-                    if (display.isClickableHovered || !display.Locked) {
+                    if (display.IsClickableHovered || !display.Locked) {
                         ImGui.PopStyleColor();
                         ImGui.PopStyleVar();
                     }
 
-                    display.isClickableHovered = false;
+                    display.IsClickableHovered = false;
 
                     switch (display.DisplayType) {
                         case 0: {

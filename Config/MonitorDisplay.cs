@@ -73,7 +73,7 @@ namespace RemindMe.Config {
         public int DisplayType = 0;
 
         [JsonIgnore] private bool tryDelete;
-        [JsonIgnore] internal bool isClickableHovered;
+        [JsonIgnore] internal bool IsClickableHovered;
         
 
         public void DrawConfigEditor(RemindMeConfig mainConfig, ref Guid? deletedMonitor) {
