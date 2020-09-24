@@ -66,6 +66,10 @@ namespace RemindMe {
                     fraction = (display.LimitDisplayTimeSeconds - timer.TimerRemaining) / display.LimitDisplayTimeSeconds;
                 }
 
+                if (display.FillToComplete && fraction < 1) {
+                    fraction = 1 - fraction;
+                }
+
                 ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
                 var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
 

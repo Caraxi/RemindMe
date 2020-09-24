@@ -20,6 +20,10 @@ namespace RemindMe {
                 var cPosY = ImGui.GetCursorPosY();
                 var fraction = timer.TimerFractionComplete;
 
+                if (display.FillToComplete && fraction < 1) {
+                    fraction = 1 - fraction;
+                }
+
                 ImGui.BeginGroup();
 
                 var drawList = ImGui.GetWindowDrawList();

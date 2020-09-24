@@ -50,6 +50,7 @@ namespace RemindMe.Config {
         public float PulseSpeed = 1.0f;
         public float PulseIntensity = 1.0f;
 
+        public bool FillToComplete = false;
 
         public bool LimitDisplayTime = false;
         public int LimitDisplayTimeSeconds = 10;
@@ -131,6 +132,7 @@ namespace RemindMe.Config {
                 OnlyShowCooldown = false;
                 mainConfig.Save();
             }
+            if (ImGui.Checkbox($"Fill bar to complete##{this.Guid}", ref this.FillToComplete)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
             if (this.ShowActionIcon) {
                 
