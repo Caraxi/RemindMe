@@ -14,8 +14,6 @@ namespace RemindMe {
             ImGui.SetWindowFontScale(display.TextScale);
             var barSize = new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize);
             foreach (var timer in timerList) {
-                ImGui.PushStyleColor(ImGuiCol.PlotHistogram, timer.ProgressColor);
-
                 var barTopLeft = ImGui.GetCursorScreenPos();
                 var barBottomRight = ImGui.GetCursorScreenPos() + barSize;
 
@@ -37,23 +35,26 @@ namespace RemindMe {
                     }
                 }
 
+                var bgColor = display.BarBackgroundColor;
+
+
                 if (timer.IsComplete) {
 
                     if (display.PulseReady) {
                         var s = Math.Abs((Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed)) - (float)Math.Floor(Math.Abs(timer.TimerRemaining / (2.5f - display.PulseSpeed))) - 0.5f) / 2) * display.PulseIntensity;
 
                         if (timer.FinishedColor.W < 0.75) {
-                            ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor + new Vector4(0, 0, 0, s));
+                            bgColor = timer.FinishedColor + new Vector4(0, 0, 0, s);
                         } else {
-                            ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor - new Vector4(0, 0, 0, s));
+                            bgColor = timer.FinishedColor - new Vector4(0, 0, 0, s);
                         }
 
                     } else {
-                        ImGui.PushStyleColor(ImGuiCol.FrameBg, timer.FinishedColor);
+                        bgColor = timer.FinishedColor;
                     }
 
                 } else {
-                    ImGui.PushStyleColor(ImGuiCol.FrameBg, display.BarBackgroundColor);
+                    bgColor = display.BarBackgroundColor;
                 }
 
                 var size = ImGui.CalcTextSize(timer.Name);
@@ -70,7 +71,11 @@ namespace RemindMe {
                     fraction = 1 - fraction;
                 }
 
-                ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
+                // ImGui.ProgressBar(1 - fraction, new Vector2(ImGui.GetWindowWidth() - ImGui.GetStyle().WindowPadding.X * 2, display.RowSize), "");
+
+                DrawBar(ImGui.GetCursorScreenPos(), barSize, 1 - fraction, FillDirection.FromLeft, bgColor, timer.ProgressColor);
+                
+                
                 var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
 
                 if (display.ShowActionIcon) {
@@ -156,8 +161,6 @@ namespace RemindMe {
                 } else {
                     ImGui.SetCursorPosY(cPosY + display.RowSize + display.BarSpacing);
                 }
-
-                ImGui.PopStyleColor(2);
 
                 if (ImGui.GetCursorPosY() + display.RowSize > ImGui.GetWindowHeight()) {
                     return;
