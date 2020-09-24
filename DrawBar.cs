@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using ImGuiNET;
 
 namespace RemindMe {
@@ -14,15 +10,13 @@ namespace RemindMe {
         }
 
         public void DrawBar(Vector2 position, Vector2 size, float fraction, FillDirection fillDirection, Vector4 incompleteColor, Vector4 completeColor, float rounding = 5f) {
-
+            if (fraction < 0) fraction = 0;
+            if (fraction > 1) fraction = 1;
             var incompleteCorners = ImDrawCornerFlags.None;
             var completeCorners = ImDrawCornerFlags.None;
-
             var drawList = ImGui.GetWindowDrawList();
-
             var topLeft = position;
             var bottomRight = position + size;
-
             var incompleteTopLeft = topLeft;
             var incompleteBottomRight = bottomRight;
             var completeTopLeft = topLeft;
@@ -53,11 +47,12 @@ namespace RemindMe {
                     incompleteBottomRight.Y -= size.Y * fraction;
                     completeTopLeft.Y += size.Y * (1 - fraction);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(fillDirection), fillDirection, null);
             }
 
             if (fraction < 1) drawList.AddRectFilled(incompleteTopLeft, incompleteBottomRight, ImGui.GetColorU32(incompleteColor), rounding, incompleteCorners);
             if (fraction > 0) drawList.AddRectFilled(completeTopLeft, completeBottomRight, ImGui.GetColorU32(completeColor), rounding, completeCorners);
-            
             ImGui.Dummy(size);
         }
 
