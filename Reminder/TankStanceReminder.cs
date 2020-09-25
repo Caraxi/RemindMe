@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Plugin;
@@ -37,17 +36,23 @@ namespace RemindMe.Reminder {
         }
 
         public override bool ShouldShow(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
-            if (pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Role != 1) return false;
-            // Check have stance
-            if (pluginInterface.ClientState.LocalPlayer.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
-            // Check other tanks have stance
-            foreach (var a in pluginInterface.ClientState.Actors) {
-                if (!(a is PlayerCharacter pc)) continue;
-                if (pc.ClassJob.GameData.Role != 1 || pc.ActorId == pluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                if (pc.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
+            try {
+                if (pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Role != 1) return false;
+                // Check have stance
+                if (pluginInterface.ClientState.LocalPlayer.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
+                // Check other tanks have stance
+
+
+                foreach (var a in pluginInterface.ClientState.Actors) {
+                    if (!(a is PlayerCharacter pc)) continue;
+                    if (pc.ClassJob.GameData.Role != 1 || pc.ActorId == pluginInterface.ClientState.LocalPlayer.ActorId) continue;
+                    if (pc.StatusEffects.Any(s => tankStatusEffectIDs.Contains((uint) s.EffectId))) return false;
+                }
+                return true;
+            } catch {
+                return false;
             }
 
-            return true;
         }
 
         public override ushort GetIconID(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
