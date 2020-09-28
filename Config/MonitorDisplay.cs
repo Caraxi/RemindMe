@@ -174,7 +174,7 @@ namespace RemindMe.Config {
 
             }
 
-            if (DisplayType == 0 && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
+            if ((DisplayType == 0 || DisplayType == 1) && ImGui.Checkbox($"Show Skill Name##{this.Guid}", ref this.ShowSkillName)) mainConfig.Save();
 
             if (DisplayType == 0 && this.ShowSkillName) {
                 ImGui.SameLine();

@@ -78,7 +78,13 @@ namespace RemindMe {
                     } else {
                         ImGui.TextColored(display.TextColor, countdownText);
                     }
-                    
+                }
+
+                if (display.ShowSkillName) {
+                    var size = ImGui.CalcTextSize(timer.Name);
+                    ImGui.SetCursorPosX(cPosX + display.RowSize / 2f - size.Y / 2);
+                    ImGui.SetCursorPosY(ImGui.GetWindowHeight() - (display.RowSize + (size.X * display.TextScale) + ImGui.GetStyle().ItemSpacing.X ));
+                    AddTextVertical(timer.Name, ImGui.GetColorU32(display.TextColor), display.TextScale);
                 }
 
                 if (hovered) {
