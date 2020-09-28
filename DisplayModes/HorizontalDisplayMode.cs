@@ -33,8 +33,6 @@ namespace RemindMe {
                         ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                     }
                 }
-
-                var size = ImGui.CalcTextSize(timer.Name);
                 var cPosY = ImGui.GetCursorPosY();
 
                 
@@ -94,12 +92,11 @@ namespace RemindMe {
                 }
 
                 if (display.ShowSkillName) {
-                    
+                    var size = ImGui.CalcTextSize(timer.Name);
                     if (display.SkillNameRight) {
-                        var textSize = ImGui.CalcTextSize(timer.Name);
                         ImGui.SetCursorPosX(
                             ImGui.GetWindowWidth() - 
-                            textSize.X - 
+                            size.X - 
                             ImGui.GetStyle().WindowPadding.X - 
                             ImGui.GetStyle().FramePadding.X -
                             ((display.ShowActionIcon && display.ReverseSideIcon) || (display.ShowCountdown && !display.ReverseCountdownSide) ? (iconSize.X + ImGui.GetStyle().ItemSpacing.X) : 0)
