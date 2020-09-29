@@ -48,15 +48,19 @@ namespace RemindMe {
                 DrawBar(barTopLeft, barSize, 1 - fraction, display.ReverseFill ? FillDirection.FromTop : FillDirection.FromBottom, GetBarBackgroundColor(display, timer), timer.ProgressColor);
                 var iconSize = new Vector2(display.RowSize) * display.ActionIconScale;
                 if (display.ShowActionIcon) {
-                    if (display.ReverseSideIcon) {
-                        ImGui.SetCursorPosY(cPosY + (barSize.X - iconSize.X) / 2);
-                    } else {
-                        ImGui.SetCursorPosY(cPosY + barSize.Y - iconSize.Y - (barSize.X - iconSize.X) / 2);
-                    }
-                    ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (iconSize.X / 2));
+                    
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
                         if (icon != null) {
+                            iconSize *= new Vector2((float)icon.Width / Math.Max(icon.Width, icon.Height), (float)icon.Height / Math.Max(icon.Width, icon.Height));
+
+                            if (display.ReverseSideIcon) {
+                                ImGui.SetCursorPosY(cPosY + (barSize.X - iconSize.X) / 2);
+                            } else {
+                                ImGui.SetCursorPosY(cPosY + barSize.Y - iconSize.Y - (barSize.X - iconSize.X) / 2);
+                            }
+                            ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (iconSize.X / 2));
+                           
                             ImGui.Image(icon.ImGuiHandle, iconSize);
                         }
                     }

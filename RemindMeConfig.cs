@@ -15,7 +15,11 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe
 {
+
+
     public class RemindMeConfig : IPluginConfiguration {
+        [NonSerialized] public bool noticeDismissed;
+
         [NonSerialized] private float debugFraction = 0;
 
         [NonSerialized]
@@ -52,11 +56,16 @@ namespace RemindMe
             pluginInterface.SavePluginConfig(this);
         }
         
-        public bool DrawConfigUI()
-        {
+        public bool DrawConfigUI() {
+
             bool drawConfig = true;
             ImGui.SetNextWindowSizeConstraints(new Vector2(400, 400), new Vector2(1200, 1200));
-            ImGui.Begin("Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig);
+            ImGui.Begin($"Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig);
+            if (!noticeDismissed) {
+                ImGui.TextWrapped("RemindMe is currently still in the testing phase. Bugs and crashes are very possible. Please report any issues you have so that they can be resolved.");
+                
+                noticeDismissed = ImGui.SmallButton("Okay");
+            }
 
             ImGui.BeginTabBar("###remindMeConfigTabs");
 
@@ -88,19 +97,23 @@ namespace RemindMe
             }
 
             if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Actions")) {
-
+                
                 if (MonitorDisplays.Count > 0) {
                     ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
-
+                    ImGui.SetColumnWidth(0, 220);
                     for (var i = 1; i <= MonitorDisplays.Count; i++) {
                         ImGui.SetColumnWidth(i, 100);
-                    ImGui.SetColumnWidth(0, 220);
                     }
 
-
                     ImGui.Text("Action");
+                    ImGui.SameLine(80);
+
+                    ImGui.Text("Show GCD");
                     ImGui.SameLine();
-                    ImGui.Checkbox("Show GCD", ref showGlobalCooldowns);
+                    ImGui.SetWindowFontScale(0.7f);
+                    ImGui.Checkbox("###showGCDCheckbox", ref showGlobalCooldowns);
+                    ImGui.SetWindowFontScale(1);
+                    
                     ImGui.NextColumn();
 
                     foreach (var d in MonitorDisplays.Values) {
@@ -110,6 +123,13 @@ namespace RemindMe
 
                     ImGui.Separator();
                     ImGui.Separator();
+                    ImGui.Columns(1);
+                    ImGui.BeginChild("###scrolling", new Vector2(-1));
+                    ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
+                    ImGui.SetColumnWidth(0, 220);
+                    for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                        ImGui.SetColumnWidth(i, 100);
+                    }
                     var gcdTextSize = ImGui.CalcTextSize("[GCD]");
                     foreach (var a in plugin.ActionList.Where(a => (showGlobalCooldowns || a.CooldownGroup != GlobalCooldownGroup || MonitorDisplays.Any(d => d.Value.Cooldowns.Any(c => c.ActionId == a.RowId && c.ClassJob == pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) && a.IsPvP == false && a.ClassJobCategory.Value.HasClass(pluginInterface.ClientState.LocalPlayer.ClassJob.Id))) {
                         var cdm = new CooldownMonitor { ActionId = a.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id };
@@ -120,6 +140,7 @@ namespace RemindMe
                         } else {
                             ImGui.Dummy(new Vector2(24));
                         }
+
                         ImGui.SameLine();
                         if (a.CooldownGroup == GlobalCooldownGroup) {
                             var x = ImGui.GetCursorPosX();
@@ -129,9 +150,7 @@ namespace RemindMe
                             ImGui.SetCursorPosX(x);
                         }
 
-                        ImGui.Text($"{a.Name}");
-
-                        
+                        ImGui.Text(a.Name);
 
                         ImGui.NextColumn();
 
@@ -161,16 +180,19 @@ namespace RemindMe
 
                     ImGui.Columns(1);
 
-                    ImGui.TextWrapped("\nSomething Missing?\nGlobal Cooldown skills aren't shown but if anything else is missing please let Caraxi know on the goat place discord and it will be added.");
+                    ImGui.TextWrapped("\nSomething Missing?\nPlease let Caraxi know on the goat place discord so it can be fixed.");
 
                 } else {
                     ImGui.Text("No display setup.");
                 }
 
+                ImGui.EndChild();
+
                 ImGui.EndTabItem();
             }
 
             if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Status Effects")) {
+                
                 if (MonitorDisplays.Count > 0) {
 
                     ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
@@ -187,87 +209,93 @@ namespace RemindMe
 
                     ImGui.Separator();
                     ImGui.Separator();
-
+                    ImGui.Columns(1);
+                    ImGui.BeginChild("###scrolling", new Vector2(-1));
+                    ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
+                    ImGui.SetColumnWidth(0, 220);
+                    for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                        ImGui.SetColumnWidth(i, 100);
+                    }
                     switch (pluginInterface.ClientState.LocalPlayer.ClassJob.Id) {
                         case 20: {
                             // MNK
-                            StatusMonitorConfigDisplay(20, 66, 246, 18); // Demolish
+                            StatusMonitorConfigDisplay(246, 18); // Demolish
                             break;
                         }
                         case 21: {
                             // WAR
-                            StatusMonitorConfigDisplay(21, 45, 90, 60); // Storm's Path
+                            StatusMonitorConfigDisplay(90, 60, selfOnly: true); // Storm's Path
                             break;
                         }
                         case 22: {
                             // DRG
-                            StatusMonitorConfigDisplay(22, 87, 1914, 30); // Disembowment
-                            StatusMonitorConfigDisplay(22, 88, 118, 24); // Chaos Thrust
+                            StatusMonitorConfigDisplay(1914, 30); // Disembowment
+                            StatusMonitorConfigDisplay(118, 24); // Chaos Thrust
                             break;
                         }
                         case 23: {
                             // BRD
-                            StatusMonitorConfigDisplay(23, 7406, 1200, 30); // Causic Bite
-                            StatusMonitorConfigDisplay(23, 7407, 1201, 30); // Stormbite
+                            StatusMonitorConfigDisplay(1200, 30); // Causic Bite
+                            StatusMonitorConfigDisplay(1201, 30); // Stormbite
                             break;
                         }
                         case 24: {
                             // WHM
-                            StatusMonitorConfigDisplay(24, 121, 143, 18); // Aero
-                            StatusMonitorConfigDisplay(24, 132, 144, 18); // Aero II
-                            StatusMonitorConfigDisplay(24, 16532, 1871, 30); // Dia
-                            StatusMonitorConfigDisplay(24, 137, 158, 18); // Regen
-                            StatusMonitorConfigDisplay(24, 133, 150, 15); // Medica II
+                            StatusMonitorConfigDisplay(143, 18); // Aero
+                            StatusMonitorConfigDisplay(144, 18); // Aero II
+                            StatusMonitorConfigDisplay(1871, 30); // Dia
+                            StatusMonitorConfigDisplay(158, 18); // Regen
+                            StatusMonitorConfigDisplay(150, 15); // Medica II
 
                             break;
                         }
                         case 25: {
                             // BLM
-                            StatusMonitorConfigDisplay(25, 144, 161, 24); // Thunder
-                            StatusMonitorConfigDisplay(25, 7447, 162, 24); // Thunder II
-                            StatusMonitorConfigDisplay(25, 153, 163, 24); // Thunder III
-                            StatusMonitorConfigDisplay(25, 7420, 1210, 18); // Thunder IV
+                            StatusMonitorConfigDisplay(161, 24); // Thunder
+                            StatusMonitorConfigDisplay(162, 24); // Thunder II
+                            StatusMonitorConfigDisplay(163, 24); // Thunder III
+                            StatusMonitorConfigDisplay(1210, 18); // Thunder IV
                             break;
                         }
                         case 27: {
                             // SMN
-                            StatusMonitorConfigDisplay(27, 164, 179, 30); // Bio
-                            StatusMonitorConfigDisplay(27, 168, 180, 30); // Miasma
-                            StatusMonitorConfigDisplay(27, 178, 189, 30); // Bio II
-                            StatusMonitorConfigDisplay(27, 7424, 1214, 30); // Bio III
-                            StatusMonitorConfigDisplay(27, 7425, 1215, 30); // Miasma III
+                            StatusMonitorConfigDisplay(179, 30); // Bio
+                            StatusMonitorConfigDisplay(180, 30); // Miasma
+                            StatusMonitorConfigDisplay(189, 30); // Bio II
+                            StatusMonitorConfigDisplay(1214, 30); // Bio III
+                            StatusMonitorConfigDisplay(1215, 30); // Miasma III
                             break;
                         }
                         case 28: {
                             // SCH
-                            StatusMonitorConfigDisplay(28, 17864, 179, 30); // Bio
-                            StatusMonitorConfigDisplay(28, 17865, 189, 30); // Bio II
-                            StatusMonitorConfigDisplay(28, 16540, 1895, 30); // Biolysis
+                            StatusMonitorConfigDisplay(179, 30); // Bio
+                            StatusMonitorConfigDisplay(189, 30); // Bio II
+                            StatusMonitorConfigDisplay(1895, 30); // Biolysis
                             break;
                         }
                         case 30: {
                             // NIN
-                            StatusMonitorConfigDisplay(30, 2257, 508, 30); // Shadow Fang
+                            StatusMonitorConfigDisplay(508, 30); // Shadow Fang
                             break;
                         }
                         case 31: {
                             // MCH
                             // 1866
-                            StatusMonitorConfigDisplay(31, 16499, 1866, 15); // Bio Blaster
+                            StatusMonitorConfigDisplay(1866, 15); // Bio Blaster
                             break;
                         }
                         case 33: {
                             // AST
-                            StatusMonitorConfigDisplay(33, 3599, 838, 30); // Combust
-                            StatusMonitorConfigDisplay(33, 3608, 843, 30); // Combust II
-                            StatusMonitorConfigDisplay(33, 16554, 1881, 30); // Combust III
-                            StatusMonitorConfigDisplay(33, 3595, 835, 15, "Diurnal"); // Aspected Benific (Regen)
-                            StatusMonitorConfigDisplay(33, 3601, 836, 15, "Diurnal"); // Aspected Helios (Regen)
+                            StatusMonitorConfigDisplay(838, 30); // Combust
+                            StatusMonitorConfigDisplay(843, 30); // Combust II
+                            StatusMonitorConfigDisplay(1881, 30); // Combust III
+                            StatusMonitorConfigDisplay(835, 15, "Diurnal"); // Aspected Benific (Regen)
+                            StatusMonitorConfigDisplay(836, 15, "Diurnal"); // Aspected Helios (Regen)
                             break;
                         }
                         case 34: {
                             // SAM
-                            StatusMonitorConfigDisplay(34, 7489, 1228, 60); // Higanbana
+                            StatusMonitorConfigDisplay(1228, 60); // Higanbana
                             break;
                         }
                         default: {
@@ -284,14 +312,70 @@ namespace RemindMe
                 } else {
                     ImGui.Text("No Monitor setup");
                 }
+
+                ImGui.EndChild();
+
+                ImGui.EndTabItem();
+            }
+
+            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Raid Buffs")) {
                 
+                ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
+                ImGui.SetColumnWidth(0, 220);
+                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                    ImGui.SetColumnWidth(i, 100);
+                }
+                ImGui.Text("Status");
+                ImGui.NextColumn();
+                foreach (var m in MonitorDisplays.Values) {
+                    ImGui.Text(m.Name);
+                    ImGui.NextColumn();
+                }
+
+                ImGui.Separator();
+                ImGui.Separator();
+                ImGui.Columns(1);
+                ImGui.BeginChild("###scrolling", new Vector2(-1));
+                ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
+                ImGui.SetColumnWidth(0, 220);
+                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                    ImGui.SetColumnWidth(i, 100);
+                }
+                
+                StatusMonitorConfigDisplay(638, 15, raid: true, note: pluginInterface.Data.GetExcelSheet<Action>().GetRow(2258)?.Name); // Target / Trick Attack (NIN)
+
+                StatusMonitorConfigDisplay(1221, 15, raid: true); // Target / Chain Stratagem (SCH)
+
+                StatusMonitorConfigDisplay(1213, 15, raid: true, selfOnly: true); // Player / Devotion (SMN)
+                
+                StatusMonitorConfigDisplay(786, 20, raid: true, selfOnly: true); // Player / Battle Litany (DRG)
+
+                StatusMonitorConfigDisplay(1184, 20, raid: true, selfOnly: true, note: pluginInterface.Data.GetExcelSheet<Action>().GetRow(7398)?.Name); // Player / Dragon Sight (DRG)
+
+                StatusMonitorConfigDisplay(1185, 20, raid: true, selfOnly: true); // Player / Brotherhood (MNK)
+
+                StatusMonitorConfigDisplay(1297, 20, raid: true, selfOnly: true); // Player / Embolden (RDM)
+
+                StatusMonitorConfigDisplay(1202, 20, raid: true, selfOnly: true); // Player / Nature's Minne (BRD)
+
+                
+
+                // ... need to do this a better way...
+                StatusMonitorConfigDisplay(1876, 20, raid: true, selfOnly: true, statusList: new uint[]{ 1882, 1884, 1885}, forcedName: "Melee Cards"); // Player / Balance (AST)
+                StatusMonitorConfigDisplay(1877, 20, raid: true, selfOnly: true, statusList: new uint[]{ 1883, 1886, 1887}, forcedName: "Ranged Cards"); // Player / Bole (AST)
+                
+                ImGui.Columns(1);
+
+                ImGui.TextWrapped("\nSomething Missing? Please let Caraxi know on the goat place discord and it will be added.");
+
+                ImGui.EndChild();
                 ImGui.EndTabItem();
             }
 
             if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Reminders")) {
-
+                ImGui.BeginChild("###scrolling", new Vector2(-1));
                 ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
-                ImGui.SetColumnWidth(0, 180);
+                ImGui.SetColumnWidth(0, 220);
                 for (var i = 1; i <= MonitorDisplays.Count; i++) {
                     ImGui.SetColumnWidth(i, 100);
                 }
@@ -302,6 +386,14 @@ namespace RemindMe
                     ImGui.NextColumn();
                 }
                 ImGui.Separator();
+                ImGui.Separator();
+                ImGui.Columns(1);
+                ImGui.BeginChild("###scrolling", new Vector2(-1));
+                ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
+                ImGui.SetColumnWidth(0, 220);
+                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                    ImGui.SetColumnWidth(i, 100);
+                }
 
                 foreach (var r in GeneralReminders) {
                     ImGui.Text(r.Name);
@@ -323,12 +415,13 @@ namespace RemindMe
                         }
                         ImGui.NextColumn();
                     }
+                    ImGui.Separator();
 
                 }
 
                 ImGui.Columns(1);
 
-
+                ImGui.EndChild();
                 ImGui.EndTabItem();
             }
 
@@ -421,57 +514,73 @@ namespace RemindMe
             return drawConfig;
         }
 
-        private void StatusMonitorConfigDisplay(uint classJob, uint actionId, uint statusId, float masDuration, string note = null) {
+        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null) {
             var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
-            var action = pluginInterface.Data.GetExcelSheet<Action>().GetRow(actionId);
-            if (status != null && action != null) {
-                var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, Action = action.RowId, MaxDuration = masDuration};
-
-                var actionIcon = plugin.IconManager.GetActionIcon(action);
-                if (actionIcon != null) {
-                    ImGui.Image(actionIcon.ImGuiHandle, new Vector2(24));
-                } else {
-                    ImGui.Dummy(new Vector2(24));
-                }
-                ImGui.SameLine();
-                var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
-                if (statusIcon != null) {
-                    ImGui.Image(statusIcon.ImGuiHandle, new Vector2(18, 24));
-                } else {
-                    ImGui.Dummy(new Vector2(18, 24));
-                }
-                ImGui.SameLine();
-
-
-                if (action.Name != status.Name) {
-                    ImGui.Text($"{status.Name} ({action.Name})");
-                } else {
-                    ImGui.Text(status.Name);
-                }
-
-                if (!string.IsNullOrEmpty(note)) {
-                    ImGui.SameLine();
-                    ImGui.Text($"({note})");
-                }
-
-                
-                ImGui.NextColumn();
-
-                foreach (var s in MonitorDisplays.Values) {
-                    var enabled = s.StatusMonitors.Contains(statusMonitor);
-                    if (ImGui.Checkbox($"###statusToggle{s.Guid}_{status.RowId}", ref enabled)) {
-                        if (enabled) {
-                            s.StatusMonitors.Add(statusMonitor);
-                        } else {
-                            s.StatusMonitors.Remove(statusMonitor);
-                        }
-                        Save();
-                    }
-                    ImGui.NextColumn();
-                }
-
-                ImGui.Separator();
+            if (status == null) return;
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = raid ? 0 : pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList};
+            
+            var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
+            if (statusIcon != null) {
+                ImGui.Image(statusIcon.ImGuiHandle, new Vector2(18, 24));
+            } else {
+                ImGui.Dummy(new Vector2(18, 24));
             }
+
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip(status.Description);
+            }
+
+            if (statusList != null) {
+                foreach (var s in statusList) {
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 10);
+                    var extraStatus = pluginInterface.Data.GetExcelSheet<Status>().GetRow(s);
+                    if (extraStatus == null) continue;
+                    var extraStatusIcon = plugin.IconManager.GetIconTexture(extraStatus.Icon);
+                    if (extraStatusIcon == null) continue;
+                    ImGui.Image(extraStatusIcon.ImGuiHandle, new Vector2(18, 24));
+                    if (ImGui.IsItemHovered()) {
+                        ImGui.SetTooltip(extraStatus.Description);
+                    }
+                }
+            }
+
+            ImGui.SameLine();
+
+            ImGui.Text(forcedName ?? status.Name);
+
+            
+
+
+            if (!string.IsNullOrEmpty(note)) {
+                ImGui.SameLine();
+                ImGui.Text($"({note})");
+            }
+
+            if (selfOnly) {
+                var selfTextSize = ImGui.CalcTextSize("[SELF]");
+                ImGui.SameLine();
+                ImGui.SetCursorPosX(ImGui.GetColumnWidth() - selfTextSize.X);
+                ImGui.TextDisabled("[SELF]");
+            }
+
+
+            ImGui.NextColumn();
+
+            foreach (var s in MonitorDisplays.Values) {
+                var enabled = s.StatusMonitors.Contains(statusMonitor);
+                if (ImGui.Checkbox($"###statusToggle{s.Guid}_{status.RowId}", ref enabled)) {
+                    if (enabled) {
+                        s.StatusMonitors.Add(statusMonitor);
+                    } else {
+                        s.StatusMonitors.Remove(statusMonitor);
+                    }
+                    Save();
+                }
+                ImGui.NextColumn();
+            }
+
+            ImGui.Separator();
 
         }
 

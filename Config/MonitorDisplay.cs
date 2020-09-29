@@ -41,6 +41,7 @@ namespace RemindMe.Config {
         public int KeepVisibleOutsideCombatSeconds = 15;
 
         public bool ShowSkillName = true;
+        public bool ShowStatusEffectTarget = true;
         public bool SkillNameRight = false;
         public bool ShowCountdown = false;
         public bool ShowCountdownReady = false;
@@ -184,6 +185,8 @@ namespace RemindMe.Config {
                 ImGui.SliderInt("###skillNameAlign", ref v, 0, 1, text);
                 if (ImGui.IsItemClicked(0)) SkillNameRight = !SkillNameRight;
             }
+
+            if ((DisplayType == 0 || DisplayType == 1) && ShowSkillName && ImGui.Checkbox($"Show Status Effect Target Name##{this.Guid}", ref this.ShowStatusEffectTarget)) mainConfig.Save();
 
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown) {

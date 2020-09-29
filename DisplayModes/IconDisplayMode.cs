@@ -68,11 +68,16 @@ namespace RemindMe {
 
                     var iconSize = new Vector2(display.RowSize * display.ActionIconScale);
                     
-                    ImGui.SetCursorPosY(cPosY + barSize.Y / 2 - iconSize.X / 2);
-                    ImGui.SetCursorPosX(cPosX + barSize.X / 2 - iconSize.X / 2);
+                    
                     var icon = IconManager.GetIconTexture(timer.IconId);
 
                     if (icon != null) {
+
+                        iconSize *= new Vector2((float)icon.Width / Math.Max(icon.Width, icon.Height), (float)icon.Height / Math.Max(icon.Width, icon.Height));
+
+                        ImGui.SetCursorPosY(cPosY + barSize.Y / 2 - iconSize.X / 2);
+                        ImGui.SetCursorPosX(cPosX + barSize.X / 2 - iconSize.X / 2);
+
                         ImGui.Image(icon.ImGuiHandle, iconSize);
                     }
                 }

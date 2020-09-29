@@ -55,16 +55,19 @@ namespace RemindMe {
                     if (timer.IconId > 0) {
                         var icon = IconManager.GetIconTexture(timer.IconId);
                         if (icon != null) {
+                            var iconRatio = new Vector2((float)icon.Width / Math.Max(icon.Width, icon.Height), (float)icon.Height / Math.Max(icon.Width, icon.Height));
 
-                            
-                            ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (iconSize.Y / 2));
+                            var displayedIconSize = iconSize * iconRatio;
+
+                            ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (displayedIconSize.Y / 2));
                             if (display.ReverseSideIcon) {
-                                ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize / 2f) - (iconSize.X / 2) - ImGui.GetStyle().WindowPadding.X);
+                                ImGui.SetCursorPosX(ImGui.GetWindowWidth() - (display.RowSize / 2f) - (displayedIconSize.X / 2) - ImGui.GetStyle().WindowPadding.X);
                             } else {
-                                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (iconSize.X / 2));
+                                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + (display.RowSize / 2f) - (displayedIconSize.X / 2));
                             }
 
-                            ImGui.Image(icon.ImGuiHandle, iconSize);
+                            
+                            ImGui.Image(icon.ImGuiHandle, displayedIconSize);
                         }
                     }
                     ImGui.SameLine();
@@ -92,7 +95,11 @@ namespace RemindMe {
                 }
 
                 if (display.ShowSkillName) {
-                    var size = ImGui.CalcTextSize(timer.Name);
+                    var name = timer.Name;
+                    if (display.ShowStatusEffectTarget && !string.IsNullOrEmpty(timer.TargetName)) {
+                        name += $" on {timer.TargetName}";
+                    }
+                    var size = ImGui.CalcTextSize(name);
                     if (display.SkillNameRight) {
                         ImGui.SetCursorPosX(
                             ImGui.GetWindowWidth() - 
@@ -110,7 +117,7 @@ namespace RemindMe {
                     }
 
                     ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f - size.Y / 2f));
-                    ImGui.TextColored(display.TextColor, $"{timer.Name}");
+                    ImGui.TextColored(display.TextColor, name);
                 }
 
                 if (hovered) {

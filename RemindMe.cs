@@ -210,32 +210,41 @@ namespace RemindMe {
                 try {
                     if (display.StatusMonitors.Count > 0) {
 
+                        var localPlayerAsList = new List<Actor>() {PluginInterface.ClientState.LocalPlayer};
+
                         foreach (var sd in display.StatusMonitors.Where(sm => {
-                            if (sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
+                            if (sm.ClassJob != 0 && sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
                             return true;
                         })) {
-                            var status = sd.StatusData ??= PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
-                            var action = sd.ActionData ??= PluginInterface.Data.Excel.GetSheet<Action>().GetRow(sd.Action);
-                            if (status == null || action == null) continue;
+                            foreach (var sid in sd.StatusIDs) {
+                                var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sid);
+                                if (status == null) continue;
 
-                            if (!ActorsWithStatus.ContainsKey(status.RowId)) continue;
+                                if (!ActorsWithStatus.ContainsKey(status.RowId)) continue;
 
-                            foreach (var a in ActorsWithStatus[status.RowId]) {
-                                if (a != null) {
-                                    foreach (var se in a.StatusEffects) {
-                                        if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                                        if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
-                                        if (se.EffectId == (short) status.RowId) {
-                                            TimerList.Add(new DisplayTimer {
-                                                TimerMax = sd.MaxDuration,
-                                                TimerCurrent = sd.MaxDuration - se.Duration,
-                                                FinishedColor = display.AbilityReadyColor,
-                                                ProgressColor = display.StatusEffectColor,
-                                                IconId = action.Icon,
-                                                Name = $"{action.Name} on {a.Name}",
-                                                ClickAction = sd.ClickHandler,
-                                                ClickParam = a,
-                                            });
+                                foreach (var a in sd.SelfOnly ? localPlayerAsList : ActorsWithStatus[status.RowId]) {
+                                    if (a != null) {
+                                        foreach (var se in a.StatusEffects) {
+                                            if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
+                                            if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
+                                            if (se.EffectId == (short)status.RowId) {
+                                                var t = new DisplayTimer {
+                                                    TimerMax = sd.MaxDuration,
+                                                    TimerCurrent = sd.MaxDuration - se.Duration,
+                                                    FinishedColor = display.AbilityReadyColor,
+                                                    ProgressColor = display.StatusEffectColor,
+                                                    IconId = status.Icon,
+                                                    Name = status.Name
+                                                };
+
+                                                if (!sd.SelfOnly) {
+                                                    t.TargetName = a.Name;
+                                                    t.ClickAction = sd.ClickHandler;
+                                                    t.ClickParam = a;
+                                                }
+
+                                                TimerList.Add(t);
+                                            }
                                         }
                                     }
                                 }

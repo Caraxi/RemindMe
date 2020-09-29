@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using JetBrains.Annotations;
 
 namespace RemindMe {
     public class DisplayTimer {
@@ -11,6 +12,7 @@ namespace RemindMe {
         public float TimerCurrent;
 
         public string Name;
+        public string TargetName = null;
         public ushort IconId;
 
         public bool AllowCountdown = true;
@@ -22,7 +24,7 @@ namespace RemindMe {
 
         public bool IsComplete => TimerCurrent >= TimerMax;
 
-        public Action<RemindMe, object> ClickAction = null;
+        [CanBeNull] public Action<RemindMe, object> ClickAction = null;
         public object ClickParam = null;
 
     }
