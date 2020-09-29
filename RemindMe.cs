@@ -96,11 +96,11 @@ namespace RemindMe {
                 ActorsWithStatus.Clear();
                 foreach (var a in PluginInterface.ClientState.Actors) {
                     foreach (var s in a.StatusEffects) {
-                        if (s.EffectId != 0) {
-                            var eid = (uint) s.EffectId;
-                            if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
-                            ActorsWithStatus[eid].Add(a);
-                        }
+                        if (s.EffectId == 0) continue;
+                        var eid = (uint) s.EffectId;
+                        if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
+                        if (ActorsWithStatus[eid].Contains(a)) continue;
+                        ActorsWithStatus[eid].Add(a);
                     }
                 }
             }
