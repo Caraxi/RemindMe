@@ -549,9 +549,6 @@ namespace RemindMe
 
             ImGui.Text(forcedName ?? status.Name);
 
-            
-
-
             if (!string.IsNullOrEmpty(note)) {
                 ImGui.SameLine();
                 ImGui.Text($"({note})");
