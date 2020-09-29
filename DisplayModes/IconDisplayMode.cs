@@ -24,7 +24,11 @@ namespace RemindMe {
             foreach (var timer in timerList) {
                 var cPosX = ImGui.GetCursorPosX();
                 var cPosY = ImGui.GetCursorPosY();
-                var fraction = timer.TimerFractionComplete;
+                var fraction = (float) (timer.TimerCurrent + display.CacheAge.TotalSeconds) / timer.TimerMax;
+
+                if (display.LimitDisplayTime && timer.TimerMax > display.LimitDisplayTimeSeconds) {
+                    fraction = (float)(display.LimitDisplayTimeSeconds - timer.TimerRemaining + display.CacheAge.TotalSeconds) / display.LimitDisplayTimeSeconds;
+                }
 
                 if (display.FillToComplete && fraction < 1) {
                     fraction = 1 - fraction;
@@ -83,7 +87,7 @@ namespace RemindMe {
                 }
 
                 if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
-                    var countdownText = Math.Abs(timer.TimerRemaining).ToString("F1");
+                    var countdownText = Math.Abs(timer.TimerRemaining - display.CacheAge.TotalSeconds).ToString("F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
                     ImGui.SetCursorPosY(cPosY + (display.RowSize / 2f) - (countdownSize.Y / 2));
                     ImGui.SetCursorPosX(cPosX + (display.RowSize / 2f) - (countdownSize.X / 2));

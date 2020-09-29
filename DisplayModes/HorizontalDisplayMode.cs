@@ -35,11 +35,10 @@ namespace RemindMe {
                 }
                 var cPosY = ImGui.GetCursorPosY();
 
-                
-                var fraction = timer.TimerFractionComplete;
+                var fraction = (float) (timer.TimerCurrent + display.CacheAge.TotalSeconds) / timer.TimerMax;
 
                 if (display.LimitDisplayTime && timer.TimerMax > display.LimitDisplayTimeSeconds) {
-                    fraction = (display.LimitDisplayTimeSeconds - timer.TimerRemaining) / display.LimitDisplayTimeSeconds;
+                    fraction = (float) (display.LimitDisplayTimeSeconds - timer.TimerRemaining + display.CacheAge.TotalSeconds) / display.LimitDisplayTimeSeconds;
                 }
 
                 if (display.FillToComplete && fraction < 1) {
@@ -75,7 +74,7 @@ namespace RemindMe {
                 }
 
                 if (timer.AllowCountdown && display.ShowCountdown && (!timer.IsComplete || display.ShowCountdownReady)) {
-                    float time = Math.Abs(timer.TimerRemaining);
+                    var time = Math.Abs(timer.TimerRemaining - display.CacheAge.TotalSeconds);
                     var countdownText = time.ToString(time >= 100 ? "F0" : "F1");
                     var countdownSize = ImGui.CalcTextSize(countdownText);
 
