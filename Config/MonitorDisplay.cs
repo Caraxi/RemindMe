@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using Newtonsoft.Json;
 using RemindMe.JsonConverters;
@@ -8,6 +9,26 @@ using RemindMe.JsonConverters;
 namespace RemindMe.Config {
 
     public class MonitorDisplay {
+
+        [JsonIgnore] private List<DisplayTimer> cachedTimerList;
+        [JsonIgnore] private readonly Stopwatch cacheTimerListStopwatch = new Stopwatch();
+        [JsonIgnore]
+        public List<DisplayTimer> TimerList {
+            get {
+                if (cachedTimerList == null) return null;
+                if (!cacheTimerListStopwatch.IsRunning) return null;
+                if (cacheTimerListStopwatch.ElapsedMilliseconds > UpdateInterval) return null;
+                return cachedTimerList;
+            }
+            set {
+                cachedTimerList = value;
+                cacheTimerListStopwatch.Restart();
+            }
+        }
+
+        [JsonIgnore]
+        public TimeSpan CacheAge => cacheTimerListStopwatch.Elapsed;
+        
         private static readonly string[] _displayTypes = new string[] {
             "Horizontal",
             "Vertical",
@@ -17,6 +38,8 @@ namespace RemindMe.Config {
         public bool DirectionRtL = false;
         public bool DirectionBtT = false;
         public bool IconVerticalStack = false;
+
+        public int UpdateInterval = 50;
 
         public bool Enabled = false;
         public Guid Guid;
@@ -148,6 +171,7 @@ namespace RemindMe.Config {
                 }
             }
             
+
             if (ImGui.Checkbox($"Show Ability Icon##{this.Guid}", ref this.ShowActionIcon)) mainConfig.Save();
             if (this.ShowActionIcon) {
                 switch (DisplayType) {
@@ -258,6 +282,11 @@ namespace RemindMe.Config {
             }
             if (ImGui.InputFloat($"Text Scale##{this.Guid}", ref this.TextScale, 0.01f, 0.1f)) {
                 if (this.RowSize < 8) this.RowSize = 8;
+                mainConfig.Save();
+            }
+            
+            if (ImGui.InputInt($"Update Interval##{this.Guid}", ref this.UpdateInterval, 1, 50)) {
+                if (this.UpdateInterval < 1) this.UpdateInterval = 1;
                 mainConfig.Save();
             }
             

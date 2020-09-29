@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
@@ -143,6 +144,117 @@ namespace RemindMe {
             ImGui.TextColored(foregroundColor, text);
         }
 
+        private List<DisplayTimer> GetTimerList(MonitorDisplay display) {
+            var timerList = new List<DisplayTimer>();
+            
+            try {
+                if (display.Cooldowns.Count > 0) {
+
+                    foreach (var cd in display.Cooldowns.Where(cd => {
+                        if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
+                        var action = ActionManager.GetAction(cd.ActionId);
+                        if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
+                        if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
+                        var cooldown = ActionManager.GetActionCooldown(action);
+                        if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
+                        if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
+                        if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
+                        if (display.LimitDisplayReadyTime && cooldown.CompleteFor > display.LimitDisplayReadyTimeSeconds) return false;
+                        return true;
+                    })) {
+                        var action = ActionManager.GetAction(cd.ActionId);
+
+                        if (action != null) {
+                            var cooldown = ActionManager.GetActionCooldown(action);
+                            timerList.Add(new DisplayTimer {
+                                TimerMax = cooldown.CooldownTotal,
+                                TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
+                                FinishedColor = display.AbilityReadyColor,
+                                ProgressColor = display.AbilityCooldownColor,
+                                IconId = IconManager.GetActionIconId(action),
+                                Name = action.Name
+                            });
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PluginLog.LogError("Error parsing cooldowns.");
+                PluginLog.Log(ex.ToString());
+            }
+
+            try {
+                if (display.StatusMonitors.Count > 0) {
+
+                    var localPlayerAsList = new List<Actor>() { PluginInterface.ClientState.LocalPlayer };
+
+                    foreach (var sd in display.StatusMonitors.Where(sm => {
+                        if (sm.ClassJob != 0 && sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
+                        return true;
+                    })) {
+                        foreach (var sid in sd.StatusIDs) {
+                            var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sid);
+                            if (status == null) continue;
+
+                            if (!ActorsWithStatus.ContainsKey(status.RowId)) continue;
+
+                            foreach (var a in sd.SelfOnly ? localPlayerAsList : ActorsWithStatus[status.RowId]) {
+                                if (a != null) {
+                                    foreach (var se in a.StatusEffects) {
+                                        if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
+                                        if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
+                                        if (se.EffectId == (short)status.RowId) {
+                                            var t = new DisplayTimer {
+                                                TimerMax = sd.MaxDuration,
+                                                TimerCurrent = sd.MaxDuration - se.Duration,
+                                                FinishedColor = display.AbilityReadyColor,
+                                                ProgressColor = display.StatusEffectColor,
+                                                IconId = status.Icon,
+                                                Name = status.Name
+                                            };
+
+                                            if (!sd.SelfOnly) {
+                                                t.TargetName = a.Name;
+                                                t.ClickAction = sd.ClickHandler;
+                                                t.ClickParam = a;
+                                            }
+
+                                            timerList.Add(t);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PluginLog.LogError("Error parsing statuses.");
+                PluginLog.Log(ex.ToString());
+            }
+
+            timerList.Sort((a, b) => {
+                var diff = a.TimerRemaining - b.TimerRemaining;
+                if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
+                if (diff < 0) return -1;
+                return 1;
+            });
+
+            foreach (var reminder in display.GeneralReminders) {
+                if (reminder.ShouldShow(PluginInterface, this, display)) {
+                    timerList.Insert(0, new DisplayTimer {
+                        TimerMax = 1,
+                        TimerCurrent = 1 + generalStopwatch.ElapsedMilliseconds / 1000f,
+                        FinishedColor = display.AbilityReadyColor,
+                        ProgressColor = display.StatusEffectColor,
+                        IconId = reminder.GetIconID(PluginInterface, this, display),
+                        Name = reminder.GetText(PluginInterface, this, display),
+                        AllowCountdown = false
+                    });
+                }
+            }
+
+            return timerList;
+        }
+
         private void DrawDisplays() {
             if (PluginInterface.ClientState.LocalPlayer == null) return;
             if (PluginConfig.MonitorDisplays.Count == 0) return;
@@ -169,115 +281,10 @@ namespace RemindMe {
                         flags |= ImGuiWindowFlags.NoMouseInputs;
                     }
                 }
+
+                var timerList = display.TimerList ??= GetTimerList(display);
                 
-                var TimerList = new List<DisplayTimer>();
-
-                try {
-                    if (display.Cooldowns.Count > 0) {
-
-                        foreach (var cd in display.Cooldowns.Where(cd => {
-                            if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                            var action = ActionManager.GetAction(cd.ActionId);
-                            if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
-                            if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
-                            var cooldown = ActionManager.GetActionCooldown(action);
-                            if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
-                            if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
-                            if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
-                            if (display.LimitDisplayReadyTime && cooldown.CompleteFor > display.LimitDisplayReadyTimeSeconds) return false;
-                            return true;
-                        })) {
-                            var action = ActionManager.GetAction(cd.ActionId);
-
-                            if (action != null) {
-                                var cooldown = ActionManager.GetActionCooldown(action);
-                                TimerList.Add(new DisplayTimer {
-                                    TimerMax = cooldown.CooldownTotal,
-                                    TimerCurrent = cooldown.CooldownElapsed + cooldown.CompleteFor,
-                                    FinishedColor = display.AbilityReadyColor,
-                                    ProgressColor = display.AbilityCooldownColor,
-                                    IconId = IconManager.GetActionIconId(action),
-                                    Name = action.Name
-                                });
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    PluginLog.LogError("Error parsing cooldowns.");
-                    PluginLog.Log(ex.ToString());
-                }
-
-                try {
-                    if (display.StatusMonitors.Count > 0) {
-
-                        var localPlayerAsList = new List<Actor>() {PluginInterface.ClientState.LocalPlayer};
-
-                        foreach (var sd in display.StatusMonitors.Where(sm => {
-                            if (sm.ClassJob != 0 && sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                            return true;
-                        })) {
-                            foreach (var sid in sd.StatusIDs) {
-                                var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sid);
-                                if (status == null) continue;
-
-                                if (!ActorsWithStatus.ContainsKey(status.RowId)) continue;
-
-                                foreach (var a in sd.SelfOnly ? localPlayerAsList : ActorsWithStatus[status.RowId]) {
-                                    if (a != null) {
-                                        foreach (var se in a.StatusEffects) {
-                                            if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                                            if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
-                                            if (se.EffectId == (short)status.RowId) {
-                                                var t = new DisplayTimer {
-                                                    TimerMax = sd.MaxDuration,
-                                                    TimerCurrent = sd.MaxDuration - se.Duration,
-                                                    FinishedColor = display.AbilityReadyColor,
-                                                    ProgressColor = display.StatusEffectColor,
-                                                    IconId = status.Icon,
-                                                    Name = status.Name
-                                                };
-
-                                                if (!sd.SelfOnly) {
-                                                    t.TargetName = a.Name;
-                                                    t.ClickAction = sd.ClickHandler;
-                                                    t.ClickParam = a;
-                                                }
-
-                                                TimerList.Add(t);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    PluginLog.LogError("Error parsing statuses.");
-                    PluginLog.Log(ex.ToString());
-                }
-
-                TimerList.Sort((a, b) => {
-                    var diff = a.TimerRemaining - b.TimerRemaining;
-                    if (Math.Abs(diff) < 0.1) return string.CompareOrdinal(a.Name, b.Name); // Equal
-                    if (diff < 0) return -1;
-                    return 1;
-                });
-
-                foreach (var reminder in display.GeneralReminders) {
-                    if (reminder.ShouldShow(PluginInterface, this, display)) {
-                        TimerList.Insert(0, new DisplayTimer {
-                            TimerMax = 1,
-                            TimerCurrent = 1 + generalStopwatch.ElapsedMilliseconds / 1000f,
-                            FinishedColor = display.AbilityReadyColor,
-                            ProgressColor = display.StatusEffectColor,
-                            IconId = reminder.GetIconID(PluginInterface, this, display),
-                            Name = reminder.GetText(PluginInterface, this, display),
-                            AllowCountdown = false
-                        });
-                    }
-                }
-
-                if (TimerList.Count > 0 || !display.Locked) {
+                if (timerList.Count > 0 || !display.Locked) {
 
                     ImGui.SetNextWindowSize(new Vector2(250, 250), ImGuiCond.FirstUseEver);
                     ImGui.SetNextWindowPos(new Vector2(250, 250), ImGuiCond.FirstUseEver);
@@ -296,20 +303,20 @@ namespace RemindMe {
 
                     switch (display.DisplayType) {
                         case 0: {
-                            DrawDisplayHorizontal(display, TimerList);
+                            DrawDisplayHorizontal(display, timerList);
                             break;
                         }
                         case 1: {
-                            DrawDisplayVertical(display, TimerList);
+                            DrawDisplayVertical(display, timerList);
                             break;
                         }
                         case 2: {
-                            DrawDisplayIcons(display, TimerList);
+                            DrawDisplayIcons(display, timerList);
                             break;
                         }
                         default: {
                             display.DisplayType = 0;
-                            DrawDisplayHorizontal(display, TimerList);
+                            DrawDisplayHorizontal(display, timerList);
                             break;
                         }
                     }
