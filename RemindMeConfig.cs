@@ -60,7 +60,7 @@ namespace RemindMe
 
             bool drawConfig = true;
             ImGui.SetNextWindowSizeConstraints(new Vector2(400, 400), new Vector2(1200, 1200));
-            ImGui.Begin($"Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig);
+            if (!ImGui.Begin($"Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig)) return drawConfig;
             if (!noticeDismissed) {
                 ImGui.TextWrapped("RemindMe is currently still in the testing phase. Bugs and crashes are very possible. Please report any issues you have so that they can be resolved.");
                 
@@ -517,7 +517,7 @@ namespace RemindMe
         private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null) {
             var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
             if (status == null) return;
-            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = raid ? 0 : pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList};
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = raid ? 0 : pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid};
             
             var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
             if (statusIcon != null) {

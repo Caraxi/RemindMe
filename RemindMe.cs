@@ -200,7 +200,7 @@ namespace RemindMe {
                             foreach (var a in sd.SelfOnly ? localPlayerAsList : ActorsWithStatus[status.RowId]) {
                                 if (a != null) {
                                     foreach (var se in a.StatusEffects) {
-                                        if (se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
+                                        if (sd.IsRaid == false && se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
                                         if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
                                         if (se.EffectId == (short)status.RowId) {
                                             var t = new DisplayTimer {

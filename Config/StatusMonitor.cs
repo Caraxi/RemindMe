@@ -11,13 +11,14 @@ namespace RemindMe.Config {
         public uint ClassJob = 0;
         public uint Status;
         public bool SelfOnly = false;
+        public bool IsRaid = false;
         public float MaxDuration = 30;
         public uint[] StatusList;
         [JsonIgnore] public Status StatusData { get; set; }
 
         public override bool Equals(object obj) {
             if (!(obj is StatusMonitor sm)) return false;
-            return sm.Status == this.Status && sm.ClassJob == this.ClassJob && sm.SelfOnly == this.SelfOnly;
+            return sm.Status == this.Status && sm.ClassJob == this.ClassJob && sm.SelfOnly == this.SelfOnly && sm.IsRaid == this.IsRaid;
         }
 
 
