@@ -13,6 +13,7 @@ namespace RemindMe.Config {
         public bool SelfOnly = false;
         public bool IsRaid = false;
         public float MaxDuration = 30;
+        public ushort LimitedZone = 0;
         public uint[] StatusList;
         [JsonIgnore] public Status StatusData { get; set; }
 
