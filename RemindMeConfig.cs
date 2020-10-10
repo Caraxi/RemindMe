@@ -82,24 +82,26 @@ namespace RemindMe
                 ImGui.EndTabItem();
             }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Actions")) {
-                DrawActionsTab();
-                ImGui.EndTabItem();
-            }
+            if (MonitorDisplays.Count > 0) {
+                if (ImGui.BeginTabItem("Actions")) {
+                    DrawActionsTab();
+                    ImGui.EndTabItem();
+                }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Status Effects")) {
-                DrawStatusEffectsTab();
-                ImGui.EndTabItem();
-            }
+                if (ImGui.BeginTabItem("Status Effects")) {
+                    DrawStatusEffectsTab();
+                    ImGui.EndTabItem();
+                }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Raid Buffs")) {
-                DrawRaidBuffsTab();
-                ImGui.EndTabItem();
-            }
+                if (ImGui.BeginTabItem("Raid Effects")) {
+                    DrawRaidEffectsTab();
+                    ImGui.EndTabItem();
+                }
 
-            if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Reminders")) {
-                DrawRemindersTab();
-                ImGui.EndTabItem();
+                if (ImGui.BeginTabItem("Reminders")) {
+                    DrawRemindersTab();
+                    ImGui.EndTabItem();
+                }
             }
 
 #if DEBUG

@@ -4,7 +4,7 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe {
     public partial class RemindMeConfig {
-        public void DrawRaidBuffsTab() {
+        public void DrawRaidEffectsTab() {
             ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
             ImGui.SetColumnWidth(0, 220);
             for (var i = 1; i <= MonitorDisplays.Count; i++) {
