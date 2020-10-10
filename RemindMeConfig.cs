@@ -373,7 +373,6 @@ namespace RemindMe
             }
 
             if (MonitorDisplays.Count > 0 && ImGui.BeginTabItem("Reminders")) {
-                ImGui.BeginChild("###scrolling", new Vector2(-1));
                 ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
                 ImGui.SetColumnWidth(0, 220);
                 for (var i = 1; i <= MonitorDisplays.Count; i++) {
