@@ -24,7 +24,7 @@ namespace RemindMe
         [NonSerialized]
         private RemindMe plugin;
 
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None)]
         public Dictionary<Guid, Config.MonitorDisplay> MonitorDisplays = new Dictionary<Guid, MonitorDisplay>();
@@ -44,6 +44,18 @@ namespace RemindMe
             this.pluginInterface = pluginInterface;
             foreach (var t in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(GeneralReminder)))) {
                 GeneralReminders.Add((GeneralReminder) Activator.CreateInstance(t));
+            }
+
+            if (Version == 1) {
+                // Update to Version 2
+                // Remove Status Monitors with ClassJob of 0
+                Version = 2;
+                if (MonitorDisplays.Count > 0) {
+                    foreach (var a in MonitorDisplays.Values) {
+                        a.StatusMonitors.RemoveAll(a => a.ClassJob == 0);
+                    }
+                }
+                Save();
             }
         }
 
@@ -106,7 +118,7 @@ namespace RemindMe
         private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null) {
             var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
             if (status == null) return;
-            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = raid ? 0 : pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid};
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid};
             
             var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
             if (statusIcon != null) {
