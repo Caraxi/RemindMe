@@ -12,6 +12,8 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 namespace RemindMe {
     public class ActionManager : IDisposable {
 
+        private readonly uint[] forcedActionIds = {3};
+
         private IntPtr actionManagerPtr;
         private RemindMe plugin;
 
@@ -28,6 +30,8 @@ namespace RemindMe {
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate IntPtr GetActionCooldownSlotDelegate(IntPtr actionManager, int cooldownGroup);
+
+        public IEnumerable<Action> PlayerActions => plugin.PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction || forcedActionIds.Contains(a.RowId));
 
         internal TextureWrap GetActionIcon(Action action) {
             var iconTex = plugin.PluginInterface.Data.GetIcon(action.Icon);
@@ -65,7 +69,7 @@ namespace RemindMe {
 
         [CanBeNull]
         public Action GetAction(uint actionID) {
-            return plugin.ActionList.FirstOrDefault(a => a.RowId == actionID);
+            return plugin.PluginInterface.Data.Excel.GetSheet<Action>().FirstOrDefault(a => a.RowId == actionID && (a.IsPlayerAction || forcedActionIds.Contains(a.RowId)));
         }
 
         private void FrameworkOnOnUpdateEvent(Framework framework) {

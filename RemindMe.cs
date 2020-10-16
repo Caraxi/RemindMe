@@ -26,8 +26,6 @@ namespace RemindMe {
 
         private bool drawConfigWindow = false;
 
-        public List<Action> ActionList;
-
         public IconManager IconManager;
 
         private readonly Stopwatch generalStopwatch = new Stopwatch();
@@ -64,8 +62,6 @@ namespace RemindMe {
             PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
 
             IconManager = new IconManager(pluginInterface);
-            var forcedActions = new uint[] {3};
-            ActionList = PluginInterface.Data.Excel.GetSheet<Action>().Where(a => a.IsPlayerAction || forcedActions.Contains(a.RowId)).ToList();
 
             actionManagerStatic = pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("48 89 05 ?? ?? ?? ?? C3 CC C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 48 8D 0D ?? ?? ?? ?? E9 ?? ?? ?? ??");
 
