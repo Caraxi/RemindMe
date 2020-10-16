@@ -4,14 +4,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using RemindMe.Config;
-using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace RemindMe {
 
@@ -24,7 +22,7 @@ namespace RemindMe {
 
         public ActionManager ActionManager;
 
-        private bool drawConfigWindow = false;
+        private bool drawConfigWindow;
 
         public IconManager IconManager;
 
@@ -33,8 +31,9 @@ namespace RemindMe {
         internal Stopwatch OutOfCombatTimer = new Stopwatch();
 
         internal Dictionary<uint, List<Actor>> ActorsWithStatus = new Dictionary<uint, List<Actor>>();
-        private Stopwatch cacheTimer = new Stopwatch();
+        private readonly Stopwatch cacheTimer = new Stopwatch();
 
+        private Exception configLoadException;
 
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
@@ -49,6 +48,24 @@ namespace RemindMe {
             PluginInterface.Dispose();
         }
 
+        public void LoadConfig(bool clearConfig = false) {
+            try {
+                if (clearConfig) {
+                    this.PluginConfig = new RemindMeConfig();
+                } else {
+                    this.PluginConfig = (RemindMeConfig)PluginInterface.GetPluginConfig() ?? new RemindMeConfig();
+                }
+                this.PluginConfig.Init(this, PluginInterface);
+            } catch (Exception ex) {
+                PluginLog.LogError("Failed to load config.");
+                PluginLog.LogError(ex.ToString());
+                PluginConfig = new RemindMeConfig();
+                PluginConfig.Init(this, PluginInterface);
+                configLoadException = ex;
+            }
+        }
+
+
         public void Initialize(DalamudPluginInterface pluginInterface) {
             generalStopwatch.Start();
             cacheTimer.Start();
@@ -56,8 +73,8 @@ namespace RemindMe {
             drawConfigWindow = true;
 #endif
             this.PluginInterface = pluginInterface;
-            this.PluginConfig = (RemindMeConfig)pluginInterface.GetPluginConfig() ?? new RemindMeConfig();
-            this.PluginConfig.Init(this, pluginInterface);
+            
+            LoadConfig();
 
             PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
 
@@ -197,7 +214,7 @@ namespace RemindMe {
                                 if (a != null) {
                                     foreach (var se in a.StatusEffects) {
                                         if (sd.IsRaid == false && se.OwnerId != PluginInterface.ClientState.LocalPlayer.ActorId) continue;
-                                        if (sd.LimitedZone > 0 && sd.LimitedZone != PluginInterface.ClientState.TerritoryType) continue;;
+                                        if (sd.LimitedZone > 0 && sd.LimitedZone != PluginInterface.ClientState.TerritoryType) continue;
                                         if (display.LimitDisplayTime && se.Duration > display.LimitDisplayTimeSeconds) continue;
                                         if (se.EffectId == (short)status.RowId) {
                                             var t = new DisplayTimer {
@@ -325,10 +342,45 @@ namespace RemindMe {
         
         private void BuildUI() {
             if (PluginInterface.ClientState.LocalPlayer == null) return;
-            drawConfigWindow = drawConfigWindow && PluginConfig.DrawConfigUI();
 
-            DrawDisplays();
+            if (configLoadException != null || PluginConfig == null) {
 
+                ImGui.PushStyleColor(ImGuiCol.TitleBg, 0x880000AA);
+                ImGui.PushStyleColor(ImGuiCol.TitleBgActive, 0x880000FF);
+                ImGui.Begin($"{Name} - Config Load Error", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize);
+                ImGui.PopStyleColor(2);
+                ImGui.Text($"{Name} failed to load the config file.");
+                ImGui.Text($"Continuing will result in a loss of any configs you have setup for {Name}.");
+                ImGui.Text("Please report this error.");
+
+                if (configLoadException != null) {
+                    var str = configLoadException.ToString();
+                    ImGui.InputTextMultiline("###exceptionText", ref str, uint.MaxValue, new Vector2(-1, 80), ImGuiInputTextFlags.ReadOnly | ImGuiInputTextFlags.AutoSelectAll);
+                }
+
+                ImGui.Dummy(new Vector2(5));
+                if (ImGui.Button("Retry Load")) {
+                    PluginConfig = null;
+                    configLoadException = null;
+                    LoadConfig();
+                }
+                ImGui.SameLine();
+                ImGui.Dummy(new Vector2(15));
+                ImGui.SameLine();
+                ImGui.PushStyleColor(ImGuiCol.Button, 0x880000FF);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0x88000088);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x880000AA);
+                if (ImGui.Button("Clear Config")) {
+                    LoadConfig(true);
+                    configLoadException = null;
+                }
+                ImGui.PopStyleColor(3);
+
+                ImGui.End();
+            } else {
+                drawConfigWindow = drawConfigWindow && PluginConfig.DrawConfigUI();
+                DrawDisplays();
+            }
         }
     }
 }
