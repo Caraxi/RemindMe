@@ -200,10 +200,7 @@ namespace RemindMe {
 
                     var localPlayerAsList = new List<Actor>() { PluginInterface.ClientState.LocalPlayer };
 
-                    foreach (var sd in display.StatusMonitors.Where(sm => {
-                        if (sm.ClassJob != 0 && sm.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                        return true;
-                    })) {
+                    foreach (var sd in display.StatusMonitors.Where(sm => sm.ClassJob == PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) {
                         foreach (var sid in sd.StatusIDs) {
                             var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sid);
                             if (status == null) continue;
