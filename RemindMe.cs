@@ -16,6 +16,7 @@ namespace RemindMe {
         public string Name => "Remind Me";
         public DalamudPluginInterface PluginInterface { get; private set; }
         public RemindMeConfig PluginConfig { get; private set; }
+        public bool InPvP { get; private set; } = false;
 
         private IntPtr actionManagerStatic;
 
@@ -87,7 +88,14 @@ namespace RemindMe {
 
             PluginInterface.UiBuilder.OnBuildUi += this.BuildUI;
 
+            pluginInterface.ClientState.TerritoryChanged += TerritoryChanged;
+            TerritoryChanged(this, pluginInterface.ClientState.TerritoryType);
+
             SetupCommands();
+        }
+
+        private void TerritoryChanged(object sender, ushort e) {
+            InPvP = PluginInterface.Data.GetExcelSheet<TerritoryType>().GetRow(e)?.IsPvpZone ?? false;
         }
 
         private void FrameworkOnOnUpdateEvent(Framework framework) {
@@ -159,7 +167,7 @@ namespace RemindMe {
 
         private List<DisplayTimer> GetTimerList(MonitorDisplay display) {
             var timerList = new List<DisplayTimer>();
-            
+            if (InPvP) return timerList;
             try {
                 if (display.Cooldowns.Count > 0) {
 
@@ -376,7 +384,7 @@ namespace RemindMe {
                 ImGui.End();
             } else {
                 drawConfigWindow = drawConfigWindow && PluginConfig.DrawConfigUI();
-                DrawDisplays();
+                if (!InPvP) DrawDisplays();
             }
         }
     }
