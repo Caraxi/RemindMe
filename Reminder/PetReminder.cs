@@ -29,6 +29,7 @@ namespace RemindMe.Reminder {
 
         public override bool ShouldShow(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             if (!petJobs.Contains(pluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
+            if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id == 28 && plugin.ActorsWithStatus.ContainsKey(791) && plugin.ActorsWithStatus[791].Contains(pluginInterface.ClientState.LocalPlayer)) return false;
             if (pluginInterface.ClientState.Actors.Any(a => a.ObjectKind == ObjectKind.BattleNpc && a is BattleNpc bNpc && bNpc.OwnerId == pluginInterface.ClientState.LocalPlayer.ActorId)) return false;
             return true;
         }
