@@ -109,6 +109,7 @@ namespace RemindMe {
                 cacheTimer.Restart();
                 ActorsWithStatus.Clear();
                 foreach (var a in PluginInterface.ClientState.Actors) {
+                    unsafe { if (*(ulong*) (a.Address + 0xF0) == 0) continue; }
                     foreach (var s in a.StatusEffects) {
                         if (s.EffectId == 0) continue;
                         var eid = (uint) s.EffectId;
