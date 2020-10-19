@@ -12,7 +12,7 @@ namespace RemindMe.Reminder {
         public override string Name => "Hotbar Lock Reminder";
 
         [JsonIgnore]
-        public override string Description => "Reminds you to lock your hotbar.";
+        public override string Description => "Reminds you to lock your hotbar.\n(Cross Hotbar not included)";
 
         public override string GetText(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             return "Lock Hotbar";
