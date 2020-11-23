@@ -48,6 +48,7 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1201, 30); // Stormbite
                         break;
                     }
+                case 6:
                 case 24: {
                         // WHM
                         StatusMonitorConfigDisplay(143, 18); // Aero
@@ -66,8 +67,9 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1210, 18); // Thunder IV
                         break;
                     }
+                case 26:
                 case 27: {
-                        // SMN
+                        // ACN, SMN
                         StatusMonitorConfigDisplay(179, 30); // Bio
                         StatusMonitorConfigDisplay(180, 30); // Miasma
                         StatusMonitorConfigDisplay(189, 30); // Bio II
