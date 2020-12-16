@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Actors.Types;
+using Dalamud.Game.ClientState.Actors.Types.NonPlayer;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using ImGuiNET;
@@ -116,8 +117,9 @@ namespace RemindMe {
                 cacheTimer.Restart();
                 ActorsWithStatus.Clear();
                 foreach (var a in PluginInterface.ClientState.Actors) {
+                    if (!(a is PlayerCharacter || a is BattleNpc)) continue;
                     unsafe {
-                        if (*(ulong*) (a.Address + 0xF0) == 0
+                        if (a is BattleNpc bNpc && bNpc.NameId != 541 &&*(ulong*) (a.Address + 0xF0) == 0
                             || ((*(uint*) (a.Address + 0x104)) & 0x10000) == 0x10000) {
                             continue;
                         }
