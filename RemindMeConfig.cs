@@ -3,7 +3,6 @@ using Dalamud.Plugin;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -14,7 +13,7 @@ using RemindMe.Config;
 namespace RemindMe
 {
     public partial class RemindMeConfig : IPluginConfiguration {
-        [NonSerialized] public bool noticeDismissed;
+        public uint InstallNoticeDismissed = 0;
 
         [NonSerialized] private float debugFraction = 0;
 
@@ -68,11 +67,16 @@ namespace RemindMe
 
             bool drawConfig = true;
             ImGui.SetNextWindowSizeConstraints(new Vector2(400, 400), new Vector2(1200, 1200));
-            if (!ImGui.Begin($"Remind Me - Configuration###cooldownMonitorSetup", ref drawConfig)) return drawConfig;
-            if (!noticeDismissed) {
-                ImGui.TextWrapped("RemindMe is currently still in the testing phase. Bugs and crashes are very possible. Please report any issues you have so that they can be resolved.");
+            if (!ImGui.Begin($"{plugin.Name} - Configuration###cooldownMonitorSetup", ref drawConfig)) return drawConfig;
+            if (InstallNoticeDismissed != 1) {
                 
-                noticeDismissed = ImGui.SmallButton("Okay");
+                ImGui.TextWrapped($"Thank you for installing {plugin.Name}.\nI am currently working on completely rewriting the plugin but please don't hesitate to bring up any issues you have with the current version. Things seem to be relatively stable, but some things may still pop up.");
+                
+                if (ImGui.SmallButton("Dismiss")) {
+                    InstallNoticeDismissed = 1;
+                    Save();
+                }
+                ImGui.Separator();
             }
 
             ImGui.BeginTabBar("###remindMeConfigTabs");

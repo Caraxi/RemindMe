@@ -48,7 +48,7 @@ namespace RemindMe {
 
             ImGui.Columns(1);
 
-            ImGui.TextWrapped("\nSomething Missing? Please let Caraxi know on the goat place discord and it will be added.");
+            ImGui.TextWrapped("\nSomething Missing?\nPlease let Caraxi know on the goat place discord and it will be added.");
 
             ImGui.EndChild();
         }
