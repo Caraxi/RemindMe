@@ -5,7 +5,7 @@ namespace RemindMe {
     public static class Extensions {
 
         public static unsafe bool IsStatus(this Actor actor, StatusFlags flags) {
-            var f = *(byte*) (actor.Address + 0x1906);
+            var f = *(byte*) (actor.Address + 0x1980);
             return (f & (byte)flags) > 0;
         }
 
