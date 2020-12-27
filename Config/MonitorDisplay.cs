@@ -112,12 +112,12 @@ namespace RemindMe.Config {
             ImGui.SameLine();
             ImGui.TextDisabled("A clickable display will allow selecting targets from status effects\nbut may get in the way of other activity.");
             ImGui.Separator();
-            if (ImGui.Combo("Display Type", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
+            if (ImGui.Combo($"Display Type##{Guid}", ref DisplayType, _displayTypes, _displayTypes.Length)) mainConfig.Save();
             
 
-            if ((DisplayType == 1 || DisplayType == 2) && ImGui.Checkbox("Right to Left", ref DirectionRtL)) mainConfig.Save();
-            if ((DisplayType == 0 || DisplayType == 2) && ImGui.Checkbox("Bottom to Top", ref DirectionBtT)) mainConfig.Save();
-            if (DisplayType == 2 && ImGui.Checkbox("Vertical Stack", ref IconVerticalStack)) mainConfig.Save();
+            if ((DisplayType == 1 || DisplayType == 2) && ImGui.Checkbox($"Right to Left##{Guid}", ref DirectionRtL)) mainConfig.Save();
+            if ((DisplayType == 0 || DisplayType == 2) && ImGui.Checkbox($"Bottom to Top##{Guid}", ref DirectionBtT)) mainConfig.Save();
+            if (DisplayType == 2 && ImGui.Checkbox($"Vertical Stack##{Guid}", ref IconVerticalStack)) mainConfig.Save();
 
             ImGui.Separator();
             ImGui.Separator();
@@ -180,7 +180,7 @@ namespace RemindMe.Config {
                         ImGui.SetNextItemWidth(75);
                         var v = ReverseSideIcon ? 1 : 0;
                         var text = ReverseSideIcon ? "Right" : "Left";
-                        ImGui.SliderInt("###actionIconReverse", ref v, 0, 1, text);
+                        ImGui.SliderInt($"###actionIconReverse##{Guid}", ref v, 0, 1, text);
                         if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
                         break;
                     }
@@ -188,7 +188,7 @@ namespace RemindMe.Config {
                         ImGui.SameLine();
                         var v = ReverseSideIcon ? 1 : 0;
                         var text = ReverseSideIcon ? "Top" : "Bottom";
-                        ImGui.VSliderInt("###actionIconReverse", new Vector2(60, 25), ref v, 0, 1, text);
+                        ImGui.VSliderInt($"###actionIconReverse##{Guid}", new Vector2(60, 25), ref v, 0, 1, text);
                         if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
                         break;
                     }
@@ -221,7 +221,7 @@ namespace RemindMe.Config {
                         ImGui.SetNextItemWidth(75);
                         var v = ReverseCountdownSide ? 0 : 1;
                         var text = ReverseCountdownSide ? "Left" : "Right";
-                        ImGui.SliderInt("###actionCountdownReverse", ref v, 0, 1, text);
+                        ImGui.SliderInt($"###actionCountdownReverse##{Guid}", ref v, 0, 1, text);
                         if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
                         break;
                     }
@@ -229,7 +229,7 @@ namespace RemindMe.Config {
                         ImGui.SameLine();
                         var v = ReverseCountdownSide ? 0 : 1;
                         var text = ReverseCountdownSide ? "Bottom" : "Top";
-                        ImGui.VSliderInt("###countdownReverse", new Vector2(60, 25), ref v, 0, 1, text);
+                        ImGui.VSliderInt($"###countdownReverse##{Guid}", new Vector2(60, 25), ref v, 0, 1, text);
                         if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
                         break;
                     }
@@ -295,21 +295,21 @@ namespace RemindMe.Config {
 
             if (tryDelete) {
 
-                ImGui.Text("Delete this monitor?");
+                ImGui.Text("Delete this display?");
                 ImGui.SameLine();
-                if (ImGui.Button("Don't Delete")) tryDelete = false;
+                if (ImGui.Button($"Don't Delete##{Guid}")) tryDelete = false;
                 ImGui.SameLine();
                 ImGui.PushStyleColor(ImGuiCol.Button, 0x88000088);
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99000099);
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAA0000AA);
-                if (ImGui.Button("Delete this display")) deletedMonitor = Guid;
+                if (ImGui.Button($"Delete this display##{Guid}confirm")) deletedMonitor = Guid;
                 ImGui.PopStyleColor(3);
 
             } else {
                 ImGui.PushStyleColor(ImGuiCol.Button, 0x88000088);
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99000099);
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAA0000AA);
-                if (ImGui.Button("Delete this display")) {
+                if (ImGui.Button($"Delete this display##{Guid}")) {
                     tryDelete = true;
                 }
                 ImGui.PopStyleColor(3);
