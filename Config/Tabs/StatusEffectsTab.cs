@@ -42,8 +42,12 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(118, 24); // Chaos Thrust
                         break;
                     }
+                case 5:
                 case 23: {
                         // BRD
+                        StatusMonitorConfigDisplay(124, 30); // Venomous Bite
+                        StatusMonitorConfigDisplay(129, 30); // Windbite
+                        if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id == 5) break;
                         StatusMonitorConfigDisplay(1200, 30); // Causic Bite
                         StatusMonitorConfigDisplay(1201, 30); // Stormbite
                         break;
