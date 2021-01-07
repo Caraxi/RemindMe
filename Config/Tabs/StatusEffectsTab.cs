@@ -69,6 +69,8 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(162, 24); // Thunder II
                         StatusMonitorConfigDisplay(163, 24); // Thunder III
                         StatusMonitorConfigDisplay(1210, 18); // Thunder IV
+                        StatusMonitorConfigDisplay(164, 18, selfOnly: true); // Thundercloud procs on player
+                        StatusMonitorConfigDisplay(165, 18, selfOnly: true); // Firestarter procs on player
                         break;
                     }
                 case 26:
