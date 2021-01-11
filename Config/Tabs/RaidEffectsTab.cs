@@ -31,6 +31,16 @@ namespace RemindMe {
 
             StatusMonitorConfigDisplay(1221, 15, raid: true); // Target / Chain Stratagem (SCH)
 
+            StatusMonitorConfigDisplay(1717, 15, raid: true); // Target / Off-guard (BLU)
+
+            StatusMonitorConfigDisplay(1721, 15, raid: true); // Target / Peculiar Light (BLU)
+
+            StatusMonitorConfigDisplay(2121, 30, raid: true); // Target / Astral Attenuation (BLU)
+
+            StatusMonitorConfigDisplay(2122, 30, raid: true); // Target / Umbral Attenuation (BLU)
+
+            StatusMonitorConfigDisplay(2123, 30, raid: true); // Target / Physical Attenuation (BLU)
+
             StatusMonitorConfigDisplay(1213, 15, raid: true, selfOnly: true); // Player / Devotion (SMN)
 
             StatusMonitorConfigDisplay(786, 20, raid: true, selfOnly: true); // Player / Battle Litany (DRG)
