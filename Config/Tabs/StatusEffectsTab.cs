@@ -117,7 +117,7 @@ namespace RemindMe {
                     }
                 case 36: {
                         // BLU
-                        StatusMonitorConfigDisplay(1714,30, "Song of Torment"); // Song of Torment
+                        StatusMonitorConfigDisplay(1714, 30, "Song of Torment"); // Song of Torment
                         break;
                     }
                 default: {
