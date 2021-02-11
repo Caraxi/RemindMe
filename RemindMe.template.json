@@ -1,9 +1,9 @@
 {
   "Author": "Caraxi",
   "Name": "Remind Me",
-  "Description": "Cooldown and Status tracking.\n/remindme",
+  "Description": ["Cooldown and Status tracking."],
   "InternalName": "RemindMe",
-  "AssemblyVersion": "0.0.2.1",
+  "AssemblyVersion": "Version",
   "RepoUrl": "https://github.com/Caraxi/RemindMe",
   "ApplicableVersion": "any",
   "DalamudApiLevel": 2
