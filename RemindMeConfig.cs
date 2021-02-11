@@ -121,11 +121,11 @@ namespace RemindMe
             return drawConfig;
         }
 
-        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0) {
+        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0, bool stacking = false) {
 
             var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
             if (status == null) return;
-            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone};
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone, Stacking = stacking};
             
             var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
             if (statusIcon != null) {

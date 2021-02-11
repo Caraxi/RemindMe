@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.ClientState.Actors.Types.NonPlayer;
+using Dalamud.Game.ClientState.Structs.JobGauge;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using ImGuiNET;
@@ -39,7 +40,7 @@ namespace RemindMe {
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
-            PluginInterface.Framework.OnUpdateEvent -= FrameworkOnOnUpdateEvent;
+            PluginInterface.Framework.OnUpdateEvent -= FrameworkUpdate;
             ActionManager?.Dispose();
             IconManager?.Dispose();
             generalStopwatch.Stop();
@@ -77,7 +78,7 @@ namespace RemindMe {
             
             LoadConfig();
 
-            PluginInterface.Framework.OnUpdateEvent += FrameworkOnOnUpdateEvent;
+            PluginInterface.Framework.OnUpdateEvent += FrameworkUpdate;
 
             IconManager = new IconManager(pluginInterface);
 
@@ -99,7 +100,7 @@ namespace RemindMe {
             InPvP = PluginInterface.Data.GetExcelSheet<TerritoryType>().GetRow(e)?.IsPvpZone ?? false;
         }
 
-        private void FrameworkOnOnUpdateEvent(Framework framework) {
+        private void FrameworkUpdate(Framework framework) {
 
             if (PluginInterface.ClientState?.LocalPlayer == null) return;
             var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
@@ -172,6 +173,24 @@ namespace RemindMe {
             ImGui.TextColored(foregroundColor, text);
         }
 
+
+        private delegate bool ActionSpecialCheckDelegate(MonitorDisplay display, CooldownMonitor cooldownMonitor, DalamudPluginInterface pluginInterface);
+
+        private Dictionary<uint, ActionSpecialCheckDelegate> actionSpecialChecks = new Dictionary<uint, ActionSpecialCheckDelegate> {
+            { 7400, ((display, monitor, pluginInterface) => {
+                // Nastrond, Only show if in Life of the Dragon
+                if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id != 22) return false;
+                var jobBar = pluginInterface.ClientState.JobGauges.Get<DRGGauge>();
+                return jobBar.BOTDState == BOTDState.LOTD;
+            })},
+            { 3555, ((display, monitor, pluginInterface) => {
+                // Geirskogul, Only show if not in Life of the Dragon
+                if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id != 22) return false;
+                var jobBar = pluginInterface.ClientState.JobGauges.Get<DRGGauge>();
+                return jobBar.BOTDState != BOTDState.LOTD;
+            })}
+        };
+
         private List<DisplayTimer> GetTimerList(MonitorDisplay display) {
             var timerList = new List<DisplayTimer>();
             if (InPvP) return timerList;
@@ -180,7 +199,7 @@ namespace RemindMe {
 
                     foreach (var cd in display.Cooldowns.Where(cd => {
                         if (cd.ClassJob != PluginInterface.ClientState.LocalPlayer.ClassJob.Id) return false;
-                        var action = ActionManager.GetAction(cd.ActionId);
+                        var action = ActionManager.GetAction(cd.ActionId, true);
                         if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
                         if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
                         var cooldown = ActionManager.GetActionCooldown(action);
@@ -188,6 +207,9 @@ namespace RemindMe {
                         if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
                         if (display.LimitDisplayTime && cooldown.Countdown > display.LimitDisplayTimeSeconds) return false;
                         if (display.LimitDisplayReadyTime && cooldown.CompleteFor > display.LimitDisplayReadyTimeSeconds) return false;
+                        if (actionSpecialChecks.ContainsKey(action.RowId)) {
+                            if (!actionSpecialChecks[action.RowId](display, cd, PluginInterface)) return false;
+                        }
                         return true;
                     })) {
                         var action = ActionManager.GetAction(cd.ActionId);
@@ -231,15 +253,18 @@ namespace RemindMe {
                                         if (se.EffectId == (short)status.RowId) {
                                             var t = new DisplayTimer {
                                                 TimerMax = sd.MaxDuration,
-                                                TimerCurrent = sd.MaxDuration - se.Duration,
+                                                TimerCurrent = sd.MaxDuration <= 0 ? (1 + generalStopwatch.ElapsedMilliseconds / 1000f) : (sd.MaxDuration - se.Duration),
                                                 FinishedColor = display.AbilityReadyColor,
                                                 ProgressColor = display.StatusEffectColor,
-                                                IconId = status.Icon,
-                                                Name = status.Name
+                                                IconId = (ushort) (status.Icon + (sd.Stacking ? se.StackCount - 1 : 0)),
+                                                Name = status.Name,
+                                                AllowCountdown = sd.MaxDuration > 0,
+                                                StackCount = sd.Stacking ? se.StackCount : -1,
                                             };
 
                                             if (!sd.SelfOnly) {
                                                 t.TargetName = a.Name;
+                                                t.TargetNameOnly = display.StatusOnlyShowTargetName;
                                                 t.ClickAction = sd.ClickHandler;
                                                 t.ClickParam = a;
                                             }

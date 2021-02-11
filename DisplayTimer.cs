@@ -13,8 +13,9 @@ namespace RemindMe {
 
         public string Name;
         public string TargetName = null;
+        public bool TargetNameOnly;
         public ushort IconId;
-
+        public int StackCount = -1;
         public bool AllowCountdown = true;
 
         public float TimerRemaining => TimerMax - TimerCurrent;

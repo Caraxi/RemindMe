@@ -69,6 +69,7 @@ namespace RemindMe.Config {
         public bool ShowCountdown = false;
         public bool ShowCountdownReady = false;
         public bool ReverseCountdownSide = false;
+        public bool StatusOnlyShowTargetName = false;
 
         public bool PulseReady = false;
         public float PulseSpeed = 1.0f;
@@ -166,7 +167,7 @@ namespace RemindMe.Config {
                 ImGui.SameLine();
                 ImGui.Text("Fill Direction");
                 ImGui.EndGroup();
-                if (ImGui.IsItemClicked(0)) {
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) {
                    IconDisplayFillDirection = (RemindMe.FillDirection) ((((int) IconDisplayFillDirection) + 1) % Enum.GetValues(typeof(RemindMe.FillDirection)).Length);
                 }
             }
@@ -181,7 +182,7 @@ namespace RemindMe.Config {
                         var v = ReverseSideIcon ? 1 : 0;
                         var text = ReverseSideIcon ? "Right" : "Left";
                         ImGui.SliderInt($"###actionIconReverse##{Guid}", ref v, 0, 1, text);
-                        if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) ReverseSideIcon = !ReverseSideIcon;
                         break;
                     }
                     case 1: {
@@ -189,13 +190,13 @@ namespace RemindMe.Config {
                         var v = ReverseSideIcon ? 1 : 0;
                         var text = ReverseSideIcon ? "Top" : "Bottom";
                         ImGui.VSliderInt($"###actionIconReverse##{Guid}", new Vector2(60, 25), ref v, 0, 1, text);
-                        if (ImGui.IsItemClicked(0)) ReverseSideIcon = !ReverseSideIcon;
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) ReverseSideIcon = !ReverseSideIcon;
                         break;
                     }
                 }
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
-                if (ImGui.SliderFloat($"###actionIconScale{this.Guid}", ref this.ActionIconScale, 0.1f, 1f, "Scale", 1f)) mainConfig.Save();
+                if (ImGui.SliderFloat($"###actionIconScale{this.Guid}", ref this.ActionIconScale, 0.1f, 1f, "Scale")) mainConfig.Save();
 
             }
 
@@ -207,11 +208,13 @@ namespace RemindMe.Config {
                 var v = SkillNameRight ? 1 : 0;
                 var text = SkillNameRight ? "Right" : "Left";
                 ImGui.SliderInt("###skillNameAlign", ref v, 0, 1, text);
-                if (ImGui.IsItemClicked(0)) SkillNameRight = !SkillNameRight;
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) SkillNameRight = !SkillNameRight;
             }
 
             if ((DisplayType == 0 || DisplayType == 1) && ShowSkillName && ImGui.Checkbox($"Show Status Effect Target Name##{this.Guid}", ref this.ShowStatusEffectTarget)) mainConfig.Save();
-
+            
+            if ((DisplayType == 0 || DisplayType == 1) && ShowSkillName && ShowStatusEffectTarget && ImGui.Checkbox($"Only show target name on status effects##{this.Guid}", ref this.StatusOnlyShowTargetName)) mainConfig.Save();
+            
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown) {
 
@@ -222,7 +225,7 @@ namespace RemindMe.Config {
                         var v = ReverseCountdownSide ? 0 : 1;
                         var text = ReverseCountdownSide ? "Left" : "Right";
                         ImGui.SliderInt($"###actionCountdownReverse##{Guid}", ref v, 0, 1, text);
-                        if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) ReverseCountdownSide = !ReverseCountdownSide;
                         break;
                     }
                     case 1: {
@@ -230,7 +233,7 @@ namespace RemindMe.Config {
                         var v = ReverseCountdownSide ? 0 : 1;
                         var text = ReverseCountdownSide ? "Bottom" : "Top";
                         ImGui.VSliderInt($"###countdownReverse##{Guid}", new Vector2(60, 25), ref v, 0, 1, text);
-                        if (ImGui.IsItemClicked(0)) ReverseCountdownSide = !ReverseCountdownSide;
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) ReverseCountdownSide = !ReverseCountdownSide;
                         break;
                     }
                 }
@@ -248,7 +251,7 @@ namespace RemindMe.Config {
 
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
-                if (ImGui.SliderFloat($"###pulseSpeed{this.Guid}", ref this.PulseSpeed, 0.5f, 2f, "Speed", 2f)) mainConfig.Save();
+                if (ImGui.SliderFloat($"###pulseSpeed{this.Guid}", ref this.PulseSpeed, 0.5f, 2f, "Speed")) mainConfig.Save();
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
                 if (ImGui.SliderFloat($"###pulseIntensity{this.Guid}", ref this.PulseIntensity, 0.1f, 2f, "Intensity")) mainConfig.Save();

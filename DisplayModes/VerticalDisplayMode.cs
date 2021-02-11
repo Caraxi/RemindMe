@@ -102,7 +102,7 @@ namespace RemindMe {
 
 
                 ImGui.EndGroup();
-                if (ImGui.IsItemClicked(0)) {
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) {
                     timer.ClickAction?.Invoke(this, timer.ClickParam);
                 }
 

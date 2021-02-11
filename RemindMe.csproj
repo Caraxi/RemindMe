@@ -27,25 +27,25 @@
     </PropertyGroup>
 	<ItemGroup>
 		<Reference Include="Dalamud">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\Dalamud.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\Dalamud.dll</HintPath>
 		</Reference>
 		<Reference Include="ImGui.NET">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\ImGui.NET.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\ImGui.NET.dll</HintPath>
 		</Reference>
 		<Reference Include="ImGuiScene">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\ImGuiScene.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\ImGuiScene.dll</HintPath>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\Newtonsoft.Json.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\Newtonsoft.Json.dll</HintPath>
 		</Reference>
 		<Reference Include="JetBrains.Annotations">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\JetBrains.Annotations.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\JetBrains.Annotations.dll</HintPath>
 		</Reference>
 		<Reference Include="Lumina">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\Lumina.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\Lumina.dll</HintPath>
 		</Reference>
 		<Reference Include="Lumina.Excel">
-			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\Lumina.Excel.dll</HintPath>
+			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
 		</Reference>
     </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

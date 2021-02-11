@@ -1,5 +1,4 @@
-﻿
-namespace RemindMe.Config {
+﻿namespace RemindMe.Config {
     public class CooldownMonitor {
         public uint ActionId = 0;
         public uint ClassJob = 0;

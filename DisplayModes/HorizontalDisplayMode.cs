@@ -96,7 +96,12 @@ namespace RemindMe {
                 if (display.ShowSkillName) {
                     var name = timer.Name;
                     if (display.ShowStatusEffectTarget && !string.IsNullOrEmpty(timer.TargetName)) {
-                        name += $" on {timer.TargetName}";
+                        if (timer.TargetNameOnly) {
+                            name = timer.TargetName;
+                        } else {
+                            name += $" on {timer.TargetName}";
+                        }
+                        
                     }
                     var size = ImGui.CalcTextSize(name);
                     if (display.SkillNameRight) {
@@ -126,7 +131,7 @@ namespace RemindMe {
                 }
 
                 ImGui.EndGroup();
-                if (ImGui.IsItemClicked(0)) {
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) {
                     timer.ClickAction?.Invoke(this, timer.ClickParam);
                 }
 

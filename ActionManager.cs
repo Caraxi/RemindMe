@@ -12,7 +12,7 @@ using Action = Lumina.Excel.GeneratedSheets.Action;
 namespace RemindMe {
     public class ActionManager : IDisposable {
 
-        private readonly uint[] forcedActionIds = {3};
+        private readonly uint[] forcedActionIds = {3, 7400};
 
         private IntPtr actionManagerPtr;
         private RemindMe plugin;
@@ -68,8 +68,8 @@ namespace RemindMe {
         }
 
         [CanBeNull]
-        public Action GetAction(uint actionID) {
-            return plugin.PluginInterface.Data.Excel.GetSheet<Action>().FirstOrDefault(a => a.RowId == actionID && (a.IsPlayerAction || forcedActionIds.Contains(a.RowId)));
+        public Action GetAction(uint actionID, bool allowNonPlayer = false) {
+            return plugin.PluginInterface.Data.Excel.GetSheet<Action>().FirstOrDefault(a => a.RowId == actionID && (allowNonPlayer || a.IsPlayerAction || forcedActionIds.Contains(a.RowId)));
         }
 
         private void FrameworkOnOnUpdateEvent(Framework framework) {

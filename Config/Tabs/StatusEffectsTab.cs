@@ -26,6 +26,11 @@ namespace RemindMe {
                 ImGui.SetColumnWidth(i, 100);
             }
             switch (pluginInterface.ClientState.LocalPlayer.ClassJob.Id) {
+                case 19: {
+                        // PLD
+                        StatusMonitorConfigDisplay(725, 21); // Goring Blade
+                        break;
+                }
                 case 20: {
                         // MNK
                         StatusMonitorConfigDisplay(246, 18); // Demolish
@@ -81,6 +86,7 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(189, 30); // Bio II
                         StatusMonitorConfigDisplay(1214, 30); // Bio III
                         StatusMonitorConfigDisplay(1215, 30); // Miasma III
+                        StatusMonitorConfigDisplay(1212, -1, selfOnly: true, stacking: true);
                         break;
                     }
                 case 28: {
@@ -93,6 +99,7 @@ namespace RemindMe {
                 case 30: {
                         // NIN
                         StatusMonitorConfigDisplay(508, 30); // Shadow Fang
+                        StatusMonitorConfigDisplay(1955, 15, selfOnly: true); // Assassinate Ready
                         break;
                     }
                 case 31: {
