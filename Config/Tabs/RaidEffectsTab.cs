@@ -43,6 +43,10 @@ namespace RemindMe {
 
             StatusMonitorConfigDisplay(1202, 20, raid: true, selfOnly: true); // Player / Nature's Minne (BRD)
 
+            StatusMonitorConfigDisplay(1825, 20, raid: true, selfOnly: true); // Player / Devilment (DNC)
+
+            StatusMonitorConfigDisplay(1878, 20, raid: true, selfOnly: true); // Player / Divination (AST)
+            
             StatusMonitorConfigDisplay(1876, 20, raid: true, selfOnly: true, statusList: new uint[] { 1882, 1884, 1885 }, forcedName: "Melee Cards"); // Player / Balance (AST)
             StatusMonitorConfigDisplay(1877, 20, raid: true, selfOnly: true, statusList: new uint[] { 1883, 1886, 1887 }, forcedName: "Ranged Cards"); // Player / Bole (AST)
 
