@@ -122,6 +122,11 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1228, 60); // Higanbana
                         break;
                     }
+                case 36: {
+                        // BLU
+                        StatusMonitorConfigDisplay(1714, 30, "Song of Torment"); // Song of Torment
+                        break;
+                    }
                 default: {
                         ImGui.Columns(1);
                         ImGui.TextWrapped($"No status monitors are available on {pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Name}.");
