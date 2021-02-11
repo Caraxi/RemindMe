@@ -30,17 +30,7 @@ namespace RemindMe {
             StatusMonitorConfigDisplay(638, 15, raid: true, note: pluginInterface.Data.GetExcelSheet<Action>().GetRow(2258)?.Name); // Target / Trick Attack (NIN)
 
             StatusMonitorConfigDisplay(1221, 15, raid: true); // Target / Chain Stratagem (SCH)
-
-            StatusMonitorConfigDisplay(1717, 15, raid: true); // Target / Off-guard (BLU)
-
-            StatusMonitorConfigDisplay(1721, 15, raid: true); // Target / Peculiar Light (BLU)
-
-            StatusMonitorConfigDisplay(2121, 30, raid: true); // Target / Astral Attenuation (BLU)
-
-            StatusMonitorConfigDisplay(2122, 30, raid: true); // Target / Umbral Attenuation (BLU)
-
-            StatusMonitorConfigDisplay(2123, 30, raid: true); // Target / Physical Attenuation (BLU)
-
+            
             StatusMonitorConfigDisplay(1213, 15, raid: true, selfOnly: true); // Player / Devotion (SMN)
 
             StatusMonitorConfigDisplay(786, 20, raid: true, selfOnly: true); // Player / Battle Litany (DRG)
@@ -56,6 +46,22 @@ namespace RemindMe {
             StatusMonitorConfigDisplay(1876, 20, raid: true, selfOnly: true, statusList: new uint[] { 1882, 1884, 1885 }, forcedName: "Melee Cards"); // Player / Balance (AST)
             StatusMonitorConfigDisplay(1877, 20, raid: true, selfOnly: true, statusList: new uint[] { 1883, 1886, 1887 }, forcedName: "Ranged Cards"); // Player / Bole (AST)
 
+
+            if (ImGui.TreeNode($"Blue Mage Effects")) {
+                while (ImGui.GetColumnIndex() != 0) ImGui.NextColumn();
+                ImGui.Separator();
+                StatusMonitorConfigDisplay(1717, 15, raid: true); // Target / Off-guard (BLU)
+
+                StatusMonitorConfigDisplay(1721, 15, raid: true); // Target / Peculiar Light (BLU)
+            
+                StatusMonitorConfigDisplay(2121, 30, raid: true); // Target / Astral Attenuation (BLU)
+
+                StatusMonitorConfigDisplay(2122, 30, raid: true); // Target / Umbral Attenuation (BLU)
+
+                StatusMonitorConfigDisplay(2123, 30, raid: true); // Target / Physical Attenuation (BLU)
+                ImGui.TreePop();
+            }
+            
             ImGui.Columns(1);
 
             ImGui.TextWrapped("\nSomething Missing?\nPlease let Caraxi know on the goat place discord and it will be added.");
