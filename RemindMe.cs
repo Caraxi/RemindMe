@@ -310,8 +310,7 @@ namespace RemindMe {
             if (PluginInterface.ClientState.LocalPlayer == null) return;
             if (PluginConfig.MonitorDisplays.Count == 0) return;
 
-            foreach (var display in PluginConfig.MonitorDisplays.Values) {
-
+            foreach (var display in PluginConfig.MonitorDisplays.Values.Where(d => d.Enabled)) {
                 if (display.Locked && display.OnlyInCombat) {
                     var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
 

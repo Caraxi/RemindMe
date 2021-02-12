@@ -1,17 +1,18 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using ImGuiNET;
 
 namespace RemindMe {
     public partial class RemindMeConfig {
         public void DrawStatusEffectsTab() {
-            ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
+            ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###statusColumns", false);
             ImGui.SetColumnWidth(0, 220);
-            for (var i = 1; i <= MonitorDisplays.Count; i++) {
+            for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                 ImGui.SetColumnWidth(i, 100);
             }
             ImGui.Text("Status");
             ImGui.NextColumn();
-            foreach (var m in MonitorDisplays.Values) {
+            foreach (var m in MonitorDisplays.Values.Where(d => d.Enabled)) {
                 ImGui.Text(m.Name);
                 ImGui.NextColumn();
             }
@@ -20,9 +21,9 @@ namespace RemindMe {
             ImGui.Separator();
             ImGui.Columns(1);
             ImGui.BeginChild("###scrolling", new Vector2(-1));
-            ImGui.Columns(1 + MonitorDisplays.Count, "###statusColumns", false);
+            ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###statusColumns", false);
             ImGui.SetColumnWidth(0, 220);
-            for (var i = 1; i <= MonitorDisplays.Count; i++) {
+            for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                 ImGui.SetColumnWidth(i, 100);
             }
             switch (pluginInterface.ClientState.LocalPlayer.ClassJob.Id) {

@@ -86,7 +86,7 @@ namespace RemindMe
                 ImGui.EndTabItem();
             }
 
-            if (MonitorDisplays.Count > 0) {
+            if (MonitorDisplays.Values.Count(d => d.Enabled) > 0) {
                 if (ImGui.BeginTabItem("Actions")) {
                     DrawActionsTab();
                     ImGui.EndTabItem();
@@ -172,7 +172,7 @@ namespace RemindMe
 
             ImGui.NextColumn();
 
-            foreach (var s in MonitorDisplays.Values) {
+            foreach (var s in MonitorDisplays.Values.Where(d => d.Enabled)) {
                 var enabled = s.StatusMonitors.Contains(statusMonitor);
                 if (ImGui.Checkbox($"###statusToggle{s.Guid}_{status.RowId}", ref enabled)) {
                     if (enabled) {

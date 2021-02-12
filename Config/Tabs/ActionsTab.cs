@@ -10,9 +10,9 @@ namespace RemindMe {
 
         public void DrawActionsTab() {
             if (MonitorDisplays.Count > 0) {
-                ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
+                ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###", false);
                 ImGui.SetColumnWidth(0, 220);
-                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                     ImGui.SetColumnWidth(i, 100);
                 }
 
@@ -27,7 +27,7 @@ namespace RemindMe {
 
                 ImGui.NextColumn();
 
-                foreach (var d in MonitorDisplays.Values) {
+                foreach (var d in MonitorDisplays.Values.Where(d => d.Enabled)) {
                     ImGui.Text(d.Name);
                     ImGui.NextColumn();
                 }
@@ -36,9 +36,9 @@ namespace RemindMe {
                 ImGui.Separator();
                 ImGui.Columns(1);
                 ImGui.BeginChild("###scrolling", new Vector2(-1));
-                ImGui.Columns(1 + MonitorDisplays.Values.Count, "###", false);
+                ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###", false);
                 ImGui.SetColumnWidth(0, 220);
-                for (var i = 1; i <= MonitorDisplays.Count; i++) {
+                for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                     ImGui.SetColumnWidth(i, 100);
                 }
                 var gcdTextSize = ImGui.CalcTextSize("[GCD]");
@@ -65,7 +65,7 @@ namespace RemindMe {
 
                     ImGui.NextColumn();
 
-                    foreach (var d in MonitorDisplays.Values) {
+                    foreach (var d in MonitorDisplays.Values.Where(d => d.Enabled)) {
 
                         var i = d.Cooldowns.Contains(cdm);
 

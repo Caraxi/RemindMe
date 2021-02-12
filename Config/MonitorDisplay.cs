@@ -105,6 +105,7 @@ namespace RemindMe.Config {
 
         public void DrawConfigEditor(RemindMeConfig mainConfig, RemindMe plugin, ref Guid? deletedMonitor) {
             ImGui.Indent(10);
+            if (ImGui.Checkbox($"Enabled##{this.Guid}", ref this.Enabled)) mainConfig.Save();
             if (ImGui.Checkbox($"Lock Display##{this.Guid}", ref this.Locked)) mainConfig.Save();
             ImGui.SameLine();
             ImGui.SetNextItemWidth(150);

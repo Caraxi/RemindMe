@@ -1,12 +1,13 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using ImGuiNET;
 
 namespace RemindMe {
     public partial class RemindMeConfig {
         public void DrawRemindersTab() {
-            ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
+            ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###remindersColumns", false);
             ImGui.SetColumnWidth(0, 220);
-            for (var i = 1; i <= MonitorDisplays.Count; i++) {
+            for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                 ImGui.SetColumnWidth(i, 100);
             }
             ImGui.Text("Reminder");
@@ -19,9 +20,9 @@ namespace RemindMe {
             ImGui.Separator();
             ImGui.Columns(1);
             ImGui.BeginChild("###scrolling", new Vector2(-1));
-            ImGui.Columns(1 + MonitorDisplays.Count, "###remindersColumns", false);
+            ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###remindersColumns", false);
             ImGui.SetColumnWidth(0, 220);
-            for (var i = 1; i <= MonitorDisplays.Count; i++) {
+            for (var i = 1; i <= MonitorDisplays.Values.Count(d =>d.Enabled); i++) {
                 ImGui.SetColumnWidth(i, 100);
             }
 
@@ -32,7 +33,7 @@ namespace RemindMe {
                 ImGui.PopStyleColor();
                 ImGui.NextColumn();
 
-                foreach (var m in MonitorDisplays.Values) {
+                foreach (var m in MonitorDisplays.Values.Where(d => d.Enabled)) {
 
                     var enabled = m.GeneralReminders.Contains(r);
                     if (ImGui.Checkbox($"###generalReminder{m.Guid}_{r.GetType().Name}", ref enabled)) {

@@ -19,7 +19,7 @@ namespace RemindMe {
 
             Guid? deletedMonitor = null;
             foreach (var m in MonitorDisplays.Values) {
-                if (ImGui.CollapsingHeader($"{m.Name}###configDisplay{m.Guid}")) {
+                if (ImGui.CollapsingHeader($"{(m.Enabled ? "":"[Disabled] ")}{m.Name}###configDisplay{m.Guid}")) {
                     m.DrawConfigEditor(this, plugin, ref deletedMonitor);
                 }
             }
