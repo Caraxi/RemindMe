@@ -12,7 +12,7 @@ namespace RemindMe {
             }
             ImGui.Text("Reminder");
             ImGui.NextColumn();
-            foreach (var m in MonitorDisplays.Values) {
+            foreach (var m in MonitorDisplays.Values.Where(d => d.Enabled)) {
                 ImGui.Text(m.Name);
                 ImGui.NextColumn();
             }
@@ -22,7 +22,7 @@ namespace RemindMe {
             ImGui.BeginChild("###scrolling", new Vector2(-1));
             ImGui.Columns(1 + MonitorDisplays.Values.Count(d => d.Enabled), "###remindersColumns", false);
             ImGui.SetColumnWidth(0, 220);
-            for (var i = 1; i <= MonitorDisplays.Values.Count(d =>d.Enabled); i++) {
+            for (var i = 1; i <= MonitorDisplays.Values.Count(d => d.Enabled); i++) {
                 ImGui.SetColumnWidth(i, 100);
             }
 
