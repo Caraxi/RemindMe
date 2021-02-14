@@ -41,7 +41,7 @@ namespace RemindMe.Config {
 
         public int UpdateInterval = 50;
 
-        public bool Enabled = false;
+        public bool Enabled = true;
         public Guid Guid;
         public string Name = "New Display";
 
