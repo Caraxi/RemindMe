@@ -14,7 +14,7 @@ using RemindMe.Config;
 
 namespace RemindMe {
 
-    public partial class RemindMe : IDalamudPlugin {
+    public unsafe partial class RemindMe : IDalamudPlugin {
         public string Name => "Remind Me";
         public DalamudPluginInterface PluginInterface { get; private set; }
         public RemindMeConfig PluginConfig { get; private set; }
@@ -36,6 +36,9 @@ namespace RemindMe {
         private readonly Stopwatch cacheTimer = new Stopwatch();
 
         private Exception configLoadException;
+
+        private uint* blueSpellBook;
+        public uint[] BlueMagicSpellbook { get; } = new uint[24];
 
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
@@ -83,6 +86,8 @@ namespace RemindMe {
             IconManager = new IconManager(pluginInterface);
 
             actionManagerStatic = pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("48 89 05 ?? ?? ?? ?? C3 CC C2 00 00 CC CC CC CC CC CC CC CC CC CC CC CC CC 48 8D 0D ?? ?? ?? ?? E9 ?? ?? ?? ??");
+            blueSpellBook = (uint*) (pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("0F B7 0D ?? ?? ?? ?? 84 C0") + 0x2A);
+            PluginLog.Verbose($"Blue Spell Book: {(ulong) blueSpellBook:X}");
 
             ActionManager = new ActionManager(this, actionManagerStatic);
 
@@ -130,6 +135,13 @@ namespace RemindMe {
                         if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
                         if (ActorsWithStatus[eid].Contains(a)) continue;
                         ActorsWithStatus[eid].Add(a);
+                    }
+                }
+
+                // Blue Magic Spellbook
+                if (PluginInterface.ClientState.LocalPlayer.ClassJob.Id == 36) {
+                    for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
+                        BlueMagicSpellbook[i] = blueSpellBook[i];
                     }
                 }
             }
@@ -201,6 +213,7 @@ namespace RemindMe {
                         var action = ActionManager.GetAction(cd.ActionId, true);
                         if (action == null || !action.ClassJobCategory.Value.HasClass(PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) return false;
                         if (action.ClassJobLevel > PluginInterface.ClientState.LocalPlayer.Level) return false;
+                        if (action.ClassJob.Row == 36 && !BlueMagicSpellbook.Contains(action.RowId)) return false;
                         var cooldown = ActionManager.GetActionCooldown(action);
                         if (display.OnlyShowReady && cooldown.IsOnCooldown) return false;
                         if (display.OnlyShowCooldown && !cooldown.IsOnCooldown) return false;
