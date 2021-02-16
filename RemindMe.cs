@@ -101,8 +101,7 @@ namespace RemindMe {
         }
 
         private void FrameworkUpdate(Framework framework) {
-
-            if (PluginInterface.ClientState?.LocalPlayer == null) return;
+            if (PluginInterface.ClientState == null || PluginInterface.ClientState.LocalContentId == 0) return;
             var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
             if (OutOfCombatTimer.IsRunning && inCombat) {
                 generalStopwatch.Restart();
