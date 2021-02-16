@@ -126,6 +126,10 @@ namespace RemindMe {
                 case 36: {
                         // BLU
                         StatusMonitorConfigDisplay(1714, 30, "Song of Torment"); // Song of Torment
+                        StatusMonitorConfigDisplay(1715, 15, "Bad Breath");
+                        StatusMonitorConfigDisplay(18, 15, "Bad Breath");
+                        StatusMonitorConfigDisplay(1717, 15, "Aetherial Spark");
+                        StatusMonitorConfigDisplay(1737, 180, selfOnly: true); // Toad Oil
                         break;
                     }
                 default: {
