@@ -18,15 +18,20 @@ namespace RemindMe {
             }
 
             Guid? deletedMonitor = null;
+            MonitorDisplay copiedDisplay = null;
             foreach (var m in MonitorDisplays.Values) {
                 if (ImGui.CollapsingHeader($"{(m.Enabled ? "":"[Disabled] ")}{m.Name}###configDisplay{m.Guid}")) {
-                    m.DrawConfigEditor(this, plugin, ref deletedMonitor);
+                    m.DrawConfigEditor(this, plugin, ref deletedMonitor, ref copiedDisplay);
                 }
             }
 
             if (deletedMonitor.HasValue) {
                 MonitorDisplays.Remove(deletedMonitor.Value);
                 Save();
+            }
+
+            if (copiedDisplay != null && !MonitorDisplays.ContainsKey(copiedDisplay.Guid)) {
+                MonitorDisplays.Add(copiedDisplay.Guid, copiedDisplay);
             }
             ImGui.EndChild();
         }

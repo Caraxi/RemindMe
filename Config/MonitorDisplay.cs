@@ -100,10 +100,26 @@ namespace RemindMe.Config {
         public int DisplayType = 0;
 
         [JsonIgnore] private bool tryDelete;
+        [JsonIgnore] private bool tryCopy;
         [JsonIgnore] internal bool IsClickableHovered;
         
+        public MonitorDisplay MakeCopy(bool withReminders) {
+            // Horrible but easy copy
+            var json = JsonConvert.SerializeObject(this);
+            var copy = JsonConvert.DeserializeObject<MonitorDisplay>(json);
+            copy.Guid = Guid.NewGuid();
+            copy.Name = copy.Name + " (Copy)";
 
-        public void DrawConfigEditor(RemindMeConfig mainConfig, RemindMe plugin, ref Guid? deletedMonitor) {
+            if (!withReminders) {
+                copy.Cooldowns.Clear();
+                copy.GeneralReminders.Clear();
+                copy.StatusMonitors.Clear();
+            }
+            
+            return copy;
+        }
+
+        public void DrawConfigEditor(RemindMeConfig mainConfig, RemindMe plugin, ref Guid? deletedMonitor, ref MonitorDisplay copiedDisplay) {
             ImGui.Indent(10);
             if (ImGui.Checkbox($"Enabled##{this.Guid}", ref this.Enabled)) mainConfig.Save();
             if (ImGui.Checkbox($"Lock Display##{this.Guid}", ref this.Locked)) mainConfig.Save();
@@ -296,8 +312,30 @@ namespace RemindMe.Config {
             
             ImGui.Separator();
 
+            if (tryCopy) {
+                ImGui.Text("Copy with actions and statuses?");
+                ImGui.SameLine();
+                
+                ImGui.PushStyleColor(ImGuiCol.Button, 0x88888800);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99999900);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAAAAAA00);
+                if (ImGui.Button($"Yes##copyWithActionsAndStatus{Guid}")) {
+                    tryCopy = false;
+                    copiedDisplay = MakeCopy(true);
+                }
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Copy the display and all the configured reminders.");
+                ImGui.SameLine();
+                if (ImGui.Button($"No##copyWithActionsAndStatus{Guid}")) {
+                    tryCopy = false;
+                    copiedDisplay = MakeCopy(false);
+                }
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip("Only copy the base display settings.");
 
-            if (tryDelete) {
+                ImGui.PopStyleColor(3);
+                ImGui.SameLine();
+                if (ImGui.Button($"Don't Copy##{Guid}")) tryCopy = false;
+                
+            } else if (tryDelete) {
 
                 ImGui.Text("Delete this display?");
                 ImGui.SameLine();
@@ -315,6 +353,17 @@ namespace RemindMe.Config {
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAA0000AA);
                 if (ImGui.Button($"Delete this display##{Guid}")) {
                     tryDelete = true;
+                }
+                ImGui.PopStyleColor(3);
+                ImGui.SameLine();
+                ImGui.Dummy(new Vector2(15 * ImGui.GetIO().FontGlobalScale, 1));
+                ImGui.SameLine();
+                
+                ImGui.PushStyleColor(ImGuiCol.Button, 0x88888800);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0x99999900);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0xAAAAAA00);
+                if (ImGui.Button($"Copy this display##{Guid}")) {
+                    tryCopy = true;
                 }
                 ImGui.PopStyleColor(3);
             }
