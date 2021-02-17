@@ -106,47 +106,50 @@ namespace RemindMe {
         }
 
         private void FrameworkUpdate(Framework framework) {
-            if (PluginInterface.ClientState == null || PluginInterface.ClientState.LocalContentId == 0) return;
-            var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
-            if (OutOfCombatTimer.IsRunning && inCombat) {
-                generalStopwatch.Restart();
-                ActionManager.ResetTimers();
-                OutOfCombatTimer.Stop();
-                OutOfCombatTimer.Reset();
-            } else if (!OutOfCombatTimer.IsRunning && !inCombat) {
-                OutOfCombatTimer.Start();
-            }
+            try {
+                if (PluginInterface.ClientState == null || PluginInterface.ClientState.LocalContentId == 0) return;
+                var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+                if (OutOfCombatTimer.IsRunning && inCombat) {
+                    generalStopwatch.Restart();
+                    ActionManager.ResetTimers();
+                    OutOfCombatTimer.Stop();
+                    OutOfCombatTimer.Reset();
+                } else if (!OutOfCombatTimer.IsRunning && !inCombat) {
+                    OutOfCombatTimer.Start();
+                }
 
 
-            if (cacheTimer.ElapsedMilliseconds >= PluginConfig.PollingRate) {
-                cacheTimer.Restart();
-                ActorsWithStatus.Clear();
-                foreach (var a in PluginInterface.ClientState.Actors) {
-                    if (!(a is PlayerCharacter || a is BattleNpc)) continue;
-                    unsafe {
-                        if (a is BattleNpc bNpc && bNpc.NameId != 541 &&*(ulong*) (a.Address + 0xF0) == 0
-                            || ((*(uint*) (a.Address + 0x104)) & 0x10000) == 0x10000) {
-                            continue;
+                if (cacheTimer.ElapsedMilliseconds >= PluginConfig.PollingRate) {
+                    cacheTimer.Restart();
+                    ActorsWithStatus.Clear();
+                    foreach (var a in PluginInterface.ClientState.Actors) {
+                        if (!(a is PlayerCharacter || a is BattleNpc)) continue;
+                        unsafe {
+                            if (a is BattleNpc bNpc && bNpc.NameId != 541 && *(ulong*) (a.Address + 0xF0) == 0 || ((*(uint*) (a.Address + 0x104)) & 0x10000) == 0x10000) {
+                                continue;
+                            }
+                        }
+
+                        foreach (var s in a.StatusEffects) {
+                            if (s.EffectId == 0) continue;
+                            var eid = (uint) s.EffectId;
+                            if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
+                            if (ActorsWithStatus[eid].Contains(a)) continue;
+                            ActorsWithStatus[eid].Add(a);
                         }
                     }
-                    foreach (var s in a.StatusEffects) {
-                        if (s.EffectId == 0) continue;
-                        var eid = (uint) s.EffectId;
-                        if (!ActorsWithStatus.ContainsKey(eid)) ActorsWithStatus.Add(eid, new List<Actor>());
-                        if (ActorsWithStatus[eid].Contains(a)) continue;
-                        ActorsWithStatus[eid].Add(a);
+
+                    // Blue Magic Spellbook
+                    if (PluginInterface.ClientState.LocalPlayer.ClassJob.Id == 36) {
+                        for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
+                            BlueMagicSpellbook[i] = blueSpellBook[i];
+                        }
                     }
                 }
 
-                // Blue Magic Spellbook
-                if (PluginInterface.ClientState.LocalPlayer.ClassJob.Id == 36) {
-                    for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
-                        BlueMagicSpellbook[i] = blueSpellBook[i];
-                    }
-                }
+            } catch (Exception ex) {
+                PluginLog.Error(ex, "Error in RemindMe.FrameworkUpdate");
             }
-
-
         }
 
         private void OnOpenConfigUi(object sender, EventArgs e) {
