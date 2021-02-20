@@ -45,6 +45,8 @@ namespace RemindMe {
             StatusMonitorConfigDisplay(1202, 20, raid: true, selfOnly: true); // Player / Nature's Minne (BRD)
 
             StatusMonitorConfigDisplay(1825, 20, raid: true, selfOnly: true); // Player / Devilment (DNC)
+            
+            StatusMonitorConfigDisplay(1822, 20, raid: true, selfOnly: true); // Player / Technical Finish (DNC)
 
             StatusMonitorConfigDisplay(1878, 20, raid: true, selfOnly: true); // Player / Divination (AST)
             
