@@ -108,7 +108,7 @@ namespace RemindMe {
         private void FrameworkUpdate(Framework framework) {
             try {
                 if (PluginInterface.ClientState == null || PluginInterface.ClientState.LocalContentId == 0) return;
-                var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+                var inCombat = PluginInterface.ClientState?.LocalPlayer!.IsStatus(StatusFlags.InCombat);
                 if (OutOfCombatTimer.IsRunning && inCombat) {
                     generalStopwatch.Restart();
                     ActionManager.ResetTimers();
@@ -140,7 +140,7 @@ namespace RemindMe {
                     }
 
                     // Blue Magic Spellbook
-                    if (PluginInterface.ClientState.LocalPlayer.ClassJob.Id == 36) {
+                    if (BlueMagicSpellbook != null && PluginInterface.ClientState?.LocalPlayer?.ClassJob?.Id == 36) {
                         for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
                             BlueMagicSpellbook[i] = blueSpellBook[i];
                         }
