@@ -140,7 +140,7 @@ namespace RemindMe {
                     }
 
                     // Blue Magic Spellbook
-                    if (BlueMagicSpellbook != null && PluginInterface.ClientState?.LocalPlayer?.ClassJob?.Id == 36) {
+                    if (BlueMagicSpellbook != null && PluginInterface.ClientState?.LocalPlayer?.ClassJob!.Id == 36) {
                         for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
                             BlueMagicSpellbook[i] = blueSpellBook[i];
                         }
