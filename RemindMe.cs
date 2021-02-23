@@ -107,8 +107,8 @@ namespace RemindMe {
 
         private void FrameworkUpdate(Framework framework) {
             try {
-                if (PluginInterface.ClientState == null || PluginInterface.ClientState.LocalContentId == 0) return;
-                var inCombat = PluginInterface.ClientState!.LocalPlayer!.IsStatus(StatusFlags.InCombat);
+                if (PluginInterface.ClientState?.LocalPlayer?.ClassJob == null) return;
+                var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
                 if (OutOfCombatTimer.IsRunning && inCombat) {
                     generalStopwatch.Restart();
                     ActionManager.ResetTimers();
@@ -124,12 +124,8 @@ namespace RemindMe {
                     ActorsWithStatus.Clear();
                     foreach (var a in PluginInterface.ClientState.Actors) {
                         if (!(a is PlayerCharacter || a is BattleNpc)) continue;
-                        unsafe {
-                            if (a is BattleNpc bNpc && bNpc.NameId != 541 && *(ulong*) (a.Address + 0xF0) == 0 || ((*(uint*) (a.Address + 0x104)) & 0x10000) == 0x10000) {
-                                continue;
-                            }
-                        }
-
+                        // TODO: Deal with this shit
+                        if (a is BattleNpc bNpc && bNpc.NameId != 541 && *(ulong*) (a.Address + 0xF0) == 0 || ((*(uint*) (a.Address + 0x104)) & 0x10000) == 0x10000) continue;
                         foreach (var s in a.StatusEffects) {
                             if (s.EffectId == 0) continue;
                             var eid = (uint) s.EffectId;
@@ -140,7 +136,7 @@ namespace RemindMe {
                     }
 
                     // Blue Magic Spellbook
-                    if (BlueMagicSpellbook != null && PluginInterface.ClientState?.LocalPlayer?.ClassJob!.Id == 36) {
+                    if (BlueMagicSpellbook != null && PluginInterface.ClientState.LocalPlayer.ClassJob.Id == 36) {
                         for (var i = 0; i < BlueMagicSpellbook.Length; i++) {
                             BlueMagicSpellbook[i] = blueSpellBook[i];
                         }
