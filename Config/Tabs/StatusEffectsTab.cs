@@ -132,6 +132,10 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1737, 180, selfOnly: true); // Toad Oil
                         break;
                     }
+                case 37: {
+                        StatusMonitorConfigDisplay(1837, 30); // Sonic Break
+                        break;
+                    }
                 default: {
                         ImGui.Columns(1);
                         ImGui.TextWrapped($"No status monitors are available on {pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Name}.");
