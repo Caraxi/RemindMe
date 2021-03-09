@@ -29,7 +29,19 @@ namespace RemindMe {
             switch (pluginInterface.ClientState.LocalPlayer.ClassJob.Id) {
                 case 19: {
                         // PLD
+                        StatusMonitorConfigDisplay(76, 25); // Fight or Flight
+                        StatusMonitorConfigDisplay(1368, 12); // Requiescat
                         StatusMonitorConfigDisplay(725, 21); // Goring Blade
+                        StatusMonitorConfigDisplay(248, 15); // Circle of Scorn
+                        StatusMonitorConfigDisplay(74, 15); // Sentinel
+                        StatusMonitorConfigDisplay(82, 10); // Hallowed Ground
+                        StatusMonitorConfigDisplay(1175, 18); // Passage of Arms
+                        StatusMonitorConfigDisplay(726, 30); // Divine Veil
+                        StatusMonitorConfigDisplay(727, 30, note: "shield"); // Divine Veil Shield
+                        StatusMonitorConfigDisplay(1856, 5); // Shelltron
+                        StatusMonitorConfigDisplay(1174, 6); // Intervention
+                        StatusMonitorConfigDisplay(81, 12); // Cover
+                        tankRoleEffects();
                         break;
                 }
                 case 20: {
@@ -39,7 +51,20 @@ namespace RemindMe {
                     }
                 case 21: {
                         // WAR
+                        StatusMonitorConfigDisplay(86, 10); // Berserk
                         StatusMonitorConfigDisplay(90, 60, selfOnly: true); // Storm's Path
+                        StatusMonitorConfigDisplay(87, 10); // Thrill of Battle
+                        StatusMonitorConfigDisplay(89, 15); // Vengeance
+                        StatusMonitorConfigDisplay(409, 8); // Holmgang
+                        StatusMonitorConfigDisplay(735, 6); // Raw Intuition
+                        StatusMonitorConfigDisplay(1457, 15); // Shake it Off
+
+                        // TODO: Obtain Ability IDs (my WAR is too low level to use these)
+                        // StatusMonitorConfigDisplay(xxx, 10); // Inner Release (Possibly same buff as Berserk?)
+                        // StatusMonitorConfigDisplay(xxx, 6); // Nascent Flash
+
+
+                        tankRoleEffects();
                         break;
                     }
                 case 22: {
@@ -66,6 +91,11 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1871, 30); // Dia
                         StatusMonitorConfigDisplay(158, 18); // Regen
                         StatusMonitorConfigDisplay(150, 15); // Medica II
+                        StatusMonitorConfigDisplay(157, 15); // Presence of Mind
+                        StatusMonitorConfigDisplay(1217, 12); // Thin Air
+                        StatusMonitorConfigDisplay(1218, 15); // Divine Benison
+                        StatusMonitorConfigDisplay(1219, 10); // Confession
+                        StatusMonitorConfigDisplay(1872, 20); // Temperance
 
                         break;
                     }
@@ -106,7 +136,29 @@ namespace RemindMe {
                 case 31: {
                         // MCH
                         // 1866
+                        StatusMonitorConfigDisplay(851, 5); // Reassembled
+                        StatusMonitorConfigDisplay(1951, 15); // Tactician
+                        StatusMonitorConfigDisplay(1205, 10); // Flamethrower
                         StatusMonitorConfigDisplay(1866, 15); // Bio Blaster
+                        break;
+                    }
+                case 32:
+                    {
+                        // DRK
+                        StatusMonitorConfigDisplay(742, 10); // Blood Weapon
+                        StatusMonitorConfigDisplay(747, 15); // Shadow Wall
+                        StatusMonitorConfigDisplay(746, 10); // Dark Mind
+                        StatusMonitorConfigDisplay(810, 10); // Living Dead
+                        StatusMonitorConfigDisplay(811, 10); // Walking Dead
+                        StatusMonitorConfigDisplay(749, 15); // Salted Earth
+                        StatusMonitorConfigDisplay(1972, 10); // Delirium
+                        StatusMonitorConfigDisplay(1178, 7); // Blackest Night
+
+                        // TODO: Obtain Ability IDs (my DRK is too low level to use these)
+                        // StatusMonitorConfigDisplay(xxx, 15); // Dark Missionary
+                        // StatusMonitorConfigDisplay(xxx, 24); // Living Shadow
+
+                        tankRoleEffects();
                         break;
                     }
                 case 33: {
@@ -123,6 +175,17 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1228, 60); // Higanbana
                         break;
                     }
+                case 35:
+                    {
+                        // RDM
+                        StatusMonitorConfigDisplay(1234, 30); // Verfire Ready
+                        StatusMonitorConfigDisplay(1235, 30); // Verstone Ready
+                        StatusMonitorConfigDisplay(1238, 20); // Acceleration
+                        StatusMonitorConfigDisplay(1239, 20); // Embolden
+                        StatusMonitorConfigDisplay(1971, 10); // Manification
+                        StatusMonitorConfigDisplay(1249, 15); // Dualcast
+                        break;
+                    }
                 case 36: {
                         // BLU
                         StatusMonitorConfigDisplay(1714, 30, "Song of Torment"); // Song of Torment
@@ -133,7 +196,19 @@ namespace RemindMe {
                         break;
                     }
                 case 37: {
+                        // GNB
+                        StatusMonitorConfigDisplay(1831, 20); // No Mercy
                         StatusMonitorConfigDisplay(1837, 30); // Sonic Break
+                        StatusMonitorConfigDisplay(1838, 15); // Bow Shock
+                        StatusMonitorConfigDisplay(1835, 18); // Aurora
+                        StatusMonitorConfigDisplay(1839, 15); // Heart of Light
+                        StatusMonitorConfigDisplay(1840, 7); // Heart of Stone
+                        StatusMonitorConfigDisplay(1898, 30); // Brutal Shell
+                        StatusMonitorConfigDisplay(1832, 20); // Camouflage
+                        StatusMonitorConfigDisplay(1834, 15); // Nebula
+                        StatusMonitorConfigDisplay(1836, 8); // Superbolide
+                        tankRoleEffects();
+
                         break;
                     }
                 default: {
@@ -148,5 +223,15 @@ namespace RemindMe {
             ImGui.EndChild();
             
         }
+
+        private void tankRoleEffects()
+        {
+            StatusMonitorConfigDisplay(1209, 6); // Arm's Length
+            StatusMonitorConfigDisplay(9, 15, note: "from Arm's Length"); // Arm's Length Slow
+            StatusMonitorConfigDisplay(2, 5, note: "from Low Blow"); // Low Blow Stun
+            StatusMonitorConfigDisplay(1191, 20); // Rampart
+            StatusMonitorConfigDisplay(1193, 10); // Reprisal
+        }
     }
+
 }
