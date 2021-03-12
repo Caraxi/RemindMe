@@ -18,7 +18,7 @@ namespace RemindMe {
                     foreach (var se in pluginInterface.ClientState.Targets.CurrentTarget.StatusEffects) {
                         if (se.EffectId <= 0) continue;
                         var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
-                        ImGui.Text($"\t{status.Name}: {status.RowId}");
+                        ImGui.Text($"\t{status.Name}: {status.RowId}  [{se.Param}, {se.Duration}]");
                     }
                 }
 
@@ -27,7 +27,7 @@ namespace RemindMe {
                 foreach (var se in pluginInterface.ClientState.LocalPlayer.StatusEffects) {
                     if (se.EffectId <= 0) continue;
                     var status = pluginInterface.Data.Excel.GetSheet<Status>().GetRow((uint)se.EffectId);
-                    ImGui.Text($"\t{status.Name}: {status.RowId}");
+                    ImGui.Text($"\t{status.Name}: {status.RowId}  [{se.Param}, {se.Duration}]");
                 }
 
                 var lastAction = pluginInterface.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>().GetRow(plugin.ActionManager.LastActionId);
