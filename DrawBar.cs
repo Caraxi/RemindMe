@@ -12,8 +12,8 @@ namespace RemindMe {
         public void DrawBar(Vector2 position, Vector2 size, float fraction, FillDirection fillDirection, Vector4 incompleteColor, Vector4 completeColor, float rounding = 5f) {
             if (fraction < 0) fraction = 0;
             if (fraction > 1) fraction = 1;
-            var incompleteCorners = ImDrawCornerFlags.None;
-            var completeCorners = ImDrawCornerFlags.None;
+            var incompleteCorners = ImDrawFlags.RoundCornersNone;
+            var completeCorners = ImDrawFlags.RoundCornersNone;
             var drawList = ImGui.GetWindowDrawList();
             var topLeft = position;
             var bottomRight = position + size;
@@ -24,26 +24,26 @@ namespace RemindMe {
 
             switch (fillDirection) {
                 case FillDirection.FromRight:
-                    incompleteCorners |= fraction <= 0 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Left;
-                    completeCorners |= fraction >= 1 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Right;
+                    incompleteCorners |= fraction <= 0 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersLeft;
+                    completeCorners |= fraction >= 1 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersRight;
                     incompleteBottomRight.X -= size.X * fraction;
                     completeTopLeft.X += size.X * (1 - fraction);
                     break;
                 case FillDirection.FromLeft:
-                    incompleteCorners |= fraction <= 0 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Right;
-                    completeCorners |= fraction >= 1 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Left;
+                    incompleteCorners |= fraction <= 0 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersRight;
+                    completeCorners |= fraction >= 1 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersLeft;
                     incompleteTopLeft.X += size.X * fraction;
                     completeBottomRight.X -= size.X * (1 - fraction);
                     break;
                 case FillDirection.FromTop:
-                    incompleteCorners |= fraction <= 0 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Bot;
-                    completeCorners |= fraction >= 1 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Top;
+                    incompleteCorners |= fraction <= 0 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersBottom;
+                    completeCorners |= fraction >= 1 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersTop;
                     incompleteTopLeft.Y += size.Y * fraction;
                     completeBottomRight.Y -= size.Y * (1 - fraction);
                     break;
                 case FillDirection.FromBottom:
-                    incompleteCorners |= fraction <= 0 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Top;
-                    completeCorners |= fraction >= 1 ? ImDrawCornerFlags.All : ImDrawCornerFlags.Bot;
+                    incompleteCorners |= fraction <= 0 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersTop;
+                    completeCorners |= fraction >= 1 ? ImDrawFlags.RoundCornersAll : ImDrawFlags.RoundCornersBottom;
                     incompleteBottomRight.Y -= size.Y * fraction;
                     completeTopLeft.Y += size.Y * (1 - fraction);
                     break;

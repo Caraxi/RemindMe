@@ -6,5 +6,5 @@
   "AssemblyVersion": "Version",
   "RepoUrl": "https://github.com/Caraxi/RemindMe",
   "ApplicableVersion": "any",
-  "DalamudApiLevel": 2
+  "DalamudApiLevel": 3
 }
