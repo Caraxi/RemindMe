@@ -75,6 +75,7 @@ namespace RemindMe {
                 case 5:
                 case 23: {
                         // BRD
+                        StatusMonitorConfigDisplay(122, 10, selfOnly: true); // Straight Shot Ready
                         StatusMonitorConfigDisplay(124, 30); // Venomous Bite
                         StatusMonitorConfigDisplay(129, 30); // Windbite
                         if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id == 5) break;
@@ -172,6 +173,8 @@ namespace RemindMe {
                 case 34: {
                         // SAM
                         StatusMonitorConfigDisplay(1228, 60); // Higanbana
+                        StatusMonitorConfigDisplay(1298, 40, selfOnly: true); // Jinpu
+                        StatusMonitorConfigDisplay(1299, 40, selfOnly: true); // Shifu
                         break;
                     }
                 case 35:
