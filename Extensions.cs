@@ -3,16 +3,6 @@ using Lumina.Excel.GeneratedSheets;
 
 namespace RemindMe {
     public static class Extensions {
-
-        public static unsafe bool IsStatus(this Actor actor, StatusFlags flags) {
-            try {
-                var f = *(byte*) (actor.Address + 0x1980);
-                return (f & (byte) flags) > 0;
-            } catch {
-                return false;
-            }
-        }
-
         public static bool HasClass(this ClassJobCategory cjc, uint classJobRowId) {
             return classJobRowId switch {
                 0 => cjc.ADV,

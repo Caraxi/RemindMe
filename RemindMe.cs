@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.ClientState.Actors.Types.NonPlayer;
 using Dalamud.Game.ClientState.Structs.JobGauge;
@@ -108,7 +109,7 @@ namespace RemindMe {
         private void FrameworkUpdate(Framework framework) {
             try {
                 if (PluginInterface.ClientState?.LocalPlayer?.ClassJob == null) return;
-                var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+                var inCombat = PluginInterface.ClientState.Condition[ConditionFlag.InCombat];
                 if (OutOfCombatTimer.IsRunning && inCombat) {
                     generalStopwatch.Restart();
                     ActionManager.ResetTimers();
@@ -323,7 +324,7 @@ namespace RemindMe {
 
             foreach (var display in PluginConfig.MonitorDisplays.Values.Where(d => d.Enabled)) {
                 if (display.Locked && display.OnlyInCombat) {
-                    var inCombat = PluginInterface.ClientState.LocalPlayer.IsStatus(StatusFlags.InCombat);
+                    var inCombat = PluginInterface.ClientState.Condition[ConditionFlag.InCombat];
 
                     if (!inCombat && !display.KeepVisibleOutsideCombat) continue;
 
