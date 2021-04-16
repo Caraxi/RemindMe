@@ -393,7 +393,7 @@ namespace RemindMe {
         }
         
         private void BuildUI() {
-            if (!PluginInterface.ClientState.Condition[ConditionFlag.LoggingOut]) return;
+            if (PluginInterface.ClientState.Condition[ConditionFlag.LoggingOut]) return;
             if (!PluginInterface.ClientState.Condition.Any()) return;
             if (PluginInterface.ClientState.LocalPlayer == null) return;
 
