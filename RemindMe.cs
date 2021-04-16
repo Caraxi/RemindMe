@@ -108,6 +108,8 @@ namespace RemindMe {
 
         private void FrameworkUpdate(Framework framework) {
             try {
+                if (PluginInterface.ClientState.Condition[ConditionFlag.LoggingOut]) return;
+                if (!PluginInterface.ClientState.Condition.Any()) return;
                 if (PluginInterface.ClientState?.LocalPlayer?.ClassJob == null) return;
                 var inCombat = PluginInterface.ClientState.Condition[ConditionFlag.InCombat];
                 if (OutOfCombatTimer.IsRunning && inCombat) {
@@ -319,6 +321,8 @@ namespace RemindMe {
         }
 
         private void DrawDisplays() {
+            if (PluginInterface.ClientState.Condition[ConditionFlag.LoggingOut]) return;
+            if (!PluginInterface.ClientState.Condition.Any()) return;
             if (PluginInterface.ClientState.LocalPlayer == null) return;
             if (PluginConfig.MonitorDisplays.Count == 0) return;
 
@@ -389,6 +393,8 @@ namespace RemindMe {
         }
         
         private void BuildUI() {
+            if (!PluginInterface.ClientState.Condition[ConditionFlag.LoggingOut]) return;
+            if (!PluginInterface.ClientState.Condition.Any()) return;
             if (PluginInterface.ClientState.LocalPlayer == null) return;
 
             if (configLoadException != null || PluginConfig == null) {
