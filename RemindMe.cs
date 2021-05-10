@@ -339,6 +339,8 @@ namespace RemindMe {
                     }
                 }
 
+                if (display.Locked && display.OnlyInDungeon && !PluginInterface.ClientState.Condition[ConditionFlag.BoundByDuty]) continue;
+
                 var flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar;
 
                 if (display.Locked) {

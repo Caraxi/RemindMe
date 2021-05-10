@@ -71,6 +71,8 @@ namespace RemindMe.Config {
         public bool ReverseCountdownSide = false;
         public bool StatusOnlyShowTargetName = false;
 
+        public bool OnlyInDungeon = false;
+
         public bool PulseReady = false;
         public float PulseSpeed = 1.0f;
         public float PulseIntensity = 1.0f;
@@ -167,6 +169,8 @@ namespace RemindMe.Config {
                 }
                 ImGui.Indent(-20);
             }
+            
+            if (ImGui.Checkbox($"Only show inside dungeons##{this.Guid}", ref this.OnlyInDungeon)) mainConfig.Save();
 
             if (ImGui.Checkbox($"Don't show complete cooldowns##{this.Guid}", ref this.OnlyShowCooldown)) {
                 OnlyShowReady = false;
