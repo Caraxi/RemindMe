@@ -35,6 +35,8 @@ namespace RemindMe
         public long PollingRate = 100;
         private const int GlobalCooldownGroup = 58;
 
+        [JsonIgnore] private List<StatusMonitor> visibleStatusMonitor = new();
+
         public RemindMeConfig() { }
 
         public void Init(RemindMe plugin, DalamudPluginInterface pluginInterface)
@@ -65,6 +67,8 @@ namespace RemindMe
         
         public bool DrawConfigUI() {
 
+            visibleStatusMonitor.Clear();
+            
             bool drawConfig = true;
             ImGui.SetNextWindowSizeConstraints(new Vector2(400, 400), new Vector2(1200, 1200));
             if (!ImGui.Begin($"{plugin.Name} - Configuration###cooldownMonitorSetup", ref drawConfig)) return drawConfig;
@@ -121,12 +125,11 @@ namespace RemindMe
             return drawConfig;
         }
 
-        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0, bool stacking = false) {
-
-            var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
+        private void StatusMonitorConfigDisplay(StatusMonitor statusMonitor, Status status = null, string forcedName = null, string note = null, bool removeOnly = false) {
+            status ??= pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusMonitor.Status);
             if (status == null) return;
-            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone, Stacking = stacking};
             
+            if (!visibleStatusMonitor.Contains(statusMonitor)) visibleStatusMonitor.Add(statusMonitor);
             var statusIcon = plugin.IconManager.GetIconTexture(status.Icon);
             if (statusIcon != null) {
                 ImGui.Image(statusIcon.ImGuiHandle, new Vector2(18, 24));
@@ -138,8 +141,8 @@ namespace RemindMe
                 ImGui.SetTooltip(status.Description);
             }
 
-            if (statusList != null) {
-                foreach (var s in statusList) {
+            if (statusMonitor.StatusList != null) {
+                foreach (var s in statusMonitor.StatusList) {
                     ImGui.SameLine();
                     ImGui.SetCursorPosX(ImGui.GetCursorPosX() - 10);
                     var extraStatus = pluginInterface.Data.GetExcelSheet<Status>().GetRow(s);
@@ -174,8 +177,12 @@ namespace RemindMe
 
             foreach (var s in MonitorDisplays.Values.Where(d => d.Enabled)) {
                 var enabled = s.StatusMonitors.Contains(statusMonitor);
-                if (ImGui.Checkbox($"###statusToggle{s.Guid}_{status.RowId}", ref enabled)) {
-                    if (enabled) {
+                if (removeOnly && !enabled) {
+                    ImGui.NextColumn();
+                    continue;
+                }
+                if (ImGui.Checkbox($"###statusToggle{s.Guid}_{status.RowId}_{visibleStatusMonitor.Count}", ref enabled)) {
+                    if (enabled && !removeOnly) {
                         s.StatusMonitors.Add(statusMonitor);
                     } else {
                         s.StatusMonitors.Remove(statusMonitor);
@@ -186,7 +193,13 @@ namespace RemindMe
             }
 
             ImGui.Separator();
-
+        }
+        
+        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0, bool stacking = false) {
+            var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
+            if (status == null) return;
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone, Stacking = stacking};
+            StatusMonitorConfigDisplay(statusMonitor, status, forcedName, note);
         }
 
     }

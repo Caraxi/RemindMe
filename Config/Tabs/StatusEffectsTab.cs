@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
+using RemindMe.Config;
 
 namespace RemindMe {
     public partial class RemindMeConfig {
@@ -218,6 +220,24 @@ namespace RemindMe {
                         ImGui.TextWrapped($"No status monitors are available on {pluginInterface.ClientState.LocalPlayer.ClassJob.GameData.Name}.");
                         break;
                     }
+            }
+
+            var oldMonitors = new List<StatusMonitor>();
+            foreach (var m in MonitorDisplays.Values.Where(t => t.Enabled)) {
+                foreach (var sm in m.StatusMonitors.Where(s => s.IsRaid == false && s.ClassJob == pluginInterface.ClientState.LocalPlayer.ClassJob.Id && !visibleStatusMonitor.Contains(s))) {
+                    oldMonitors.Add(sm);
+                }
+            }
+
+            if (oldMonitors.Count > 0) {
+                ImGui.Separator();
+                
+                ImGui.Text("Obsolete Monitors (Disable Only)");
+                while(ImGui.GetColumnIndex() != 0) ImGui.NextColumn();
+                ImGui.Separator();
+                foreach (var sm in oldMonitors) {
+                    StatusMonitorConfigDisplay(sm, note: "Obsolete", removeOnly: true);
+                }
             }
 
             ImGui.Columns(1);
