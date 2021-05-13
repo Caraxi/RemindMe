@@ -48,20 +48,20 @@ namespace RemindMe {
                 }
                 case 20: {
                         // MNK
-                        StatusMonitorConfigDisplay(246, 18); // Demolish
+                        StatusMonitorConfigDisplay(246, 18, alwaysAvailable: true, minLevel: 30); // Demolish
                         break;
                     }
                 case 21: {
                         // WAR
                         StatusMonitorConfigDisplay(86, 10, selfOnly: true); // Berserk
-                        StatusMonitorConfigDisplay(90, 60, selfOnly: true); // Storm's Path
+                        StatusMonitorConfigDisplay(90, 60, selfOnly: true, alwaysAvailable: true, minLevel: 50); // Storm's Eye
                         StatusMonitorConfigDisplay(87, 10, selfOnly: true); // Thrill of Battle
                         StatusMonitorConfigDisplay(89, 15, selfOnly: true); // Vengeance
                         StatusMonitorConfigDisplay(409, 8, selfOnly: true); // Holmgang
                         StatusMonitorConfigDisplay(735, 6); // Raw Intuition
                         StatusMonitorConfigDisplay(1457, 15); // Shake it Off
 
-                        // TODO: Obtain Ability IDs (my WAR is too low level to use these)
+                        // TODO: Obtain Ability IDs
                         // StatusMonitorConfigDisplay(xxx, 10); // Inner Release (Possibly same buff as Berserk?)
                         // StatusMonitorConfigDisplay(xxx, 6); // Nascent Flash
 
@@ -70,29 +70,29 @@ namespace RemindMe {
                     }
                 case 22: {
                         // DRG
-                        StatusMonitorConfigDisplay(1914, 30); // Disembowment
-                        StatusMonitorConfigDisplay(118, 24); // Chaos Thrust
+                        StatusMonitorConfigDisplay(1914, 30, alwaysAvailable: true, minLevel: 18); // Disembowment
+                        StatusMonitorConfigDisplay(118, 24, alwaysAvailable: true, minLevel: 50); // Chaos Thrust
                         break;
                     }
                 case 5:
                 case 23: {
                         // BRD
                         StatusMonitorConfigDisplay(122, 10, selfOnly: true); // Straight Shot Ready
-                        StatusMonitorConfigDisplay(124, 30); // Venomous Bite
-                        StatusMonitorConfigDisplay(129, 30); // Windbite
+                        StatusMonitorConfigDisplay(124, 30, alwaysAvailable: true, minLevel: 6, maxLevel: 63); // Venomous Bite
+                        StatusMonitorConfigDisplay(129, 30, alwaysAvailable: true, minLevel: 30, maxLevel: 63); // Windbite
                         if (pluginInterface.ClientState.LocalPlayer.ClassJob.Id == 5) break;
-                        StatusMonitorConfigDisplay(1200, 30); // Causic Bite
-                        StatusMonitorConfigDisplay(1201, 30); // Stormbite
+                        StatusMonitorConfigDisplay(1200, 30, alwaysAvailable: true, minLevel: 64); // Causic Bite
+                        StatusMonitorConfigDisplay(1201, 30, alwaysAvailable: true, minLevel: 64); // Stormbite
                         break;
                     }
                 case 6:
                 case 24: {
                         // WHM
-                        StatusMonitorConfigDisplay(143, 18); // Aero
-                        StatusMonitorConfigDisplay(144, 18); // Aero II
-                        StatusMonitorConfigDisplay(1871, 30); // Dia
-                        StatusMonitorConfigDisplay(158, 18); // Regen
-                        StatusMonitorConfigDisplay(150, 15); // Medica II
+                        StatusMonitorConfigDisplay(143, 18, alwaysAvailable: true, minLevel: 4, maxLevel: 45); // Aero
+                        StatusMonitorConfigDisplay(144, 18, alwaysAvailable: true, minLevel: 46, maxLevel: 71); // Aero II
+                        StatusMonitorConfigDisplay(1871, 30, alwaysAvailable: true, minLevel: 72); // Dia
+                        StatusMonitorConfigDisplay(158, 18, alwaysAvailable: true, minLevel: 35); // Regen
+                        StatusMonitorConfigDisplay(150, 15, alwaysAvailable: true, minLevel: 50); // Medica II
                         StatusMonitorConfigDisplay(157, 15, selfOnly: true); // Presence of Mind
                         StatusMonitorConfigDisplay(1217, 12, selfOnly: true); // Thin Air
                         StatusMonitorConfigDisplay(1218, 15); // Divine Benison
@@ -103,10 +103,10 @@ namespace RemindMe {
                     }
                 case 25: {
                         // BLM
-                        StatusMonitorConfigDisplay(161, 24); // Thunder
-                        StatusMonitorConfigDisplay(162, 24); // Thunder II
-                        StatusMonitorConfigDisplay(163, 24); // Thunder III
-                        StatusMonitorConfigDisplay(1210, 18); // Thunder IV
+                        StatusMonitorConfigDisplay(161, 18, alwaysAvailable: true, minLevel: 6, maxLevel: 44); // Thunder
+                        StatusMonitorConfigDisplay(162, 12, alwaysAvailable: true, minLevel: 26, maxLevel: 63); // Thunder II
+                        StatusMonitorConfigDisplay(163, 24, alwaysAvailable: true, minLevel: 45); // Thunder III
+                        StatusMonitorConfigDisplay(1210, 18, alwaysAvailable: true, minLevel: 64); // Thunder IV
                         StatusMonitorConfigDisplay(164, 18, selfOnly: true); // Thundercloud procs on player
                         StatusMonitorConfigDisplay(165, 18, selfOnly: true); // Firestarter procs on player
                         break;
@@ -114,19 +114,20 @@ namespace RemindMe {
                 case 26:
                 case 27: {
                         // ACN, SMN
-                        StatusMonitorConfigDisplay(179, 30); // Bio
-                        StatusMonitorConfigDisplay(180, 30); // Miasma
-                        StatusMonitorConfigDisplay(189, 30); // Bio II
-                        StatusMonitorConfigDisplay(1214, 30); // Bio III
-                        StatusMonitorConfigDisplay(1215, 30); // Miasma III
+                        // TODO: Min/Max level for SMN
+                        StatusMonitorConfigDisplay(179, 30, alwaysAvailable: true); // Bio
+                        StatusMonitorConfigDisplay(180, 30, alwaysAvailable: true); // Miasma
+                        StatusMonitorConfigDisplay(189, 30, alwaysAvailable: true); // Bio II
+                        StatusMonitorConfigDisplay(1214, 30, alwaysAvailable: true); // Bio III
+                        StatusMonitorConfigDisplay(1215, 30, alwaysAvailable: true); // Miasma III
                         StatusMonitorConfigDisplay(1212, -1, selfOnly: true, stacking: true);
                         break;
                     }
                 case 28: {
                         // SCH
-                        StatusMonitorConfigDisplay(179, 30); // Bio
-                        StatusMonitorConfigDisplay(189, 30); // Bio II
-                        StatusMonitorConfigDisplay(1895, 30); // Biolysis
+                        StatusMonitorConfigDisplay(179, 30, alwaysAvailable: true, minLevel: 2, maxLevel: 25); // Bio
+                        StatusMonitorConfigDisplay(189, 30, alwaysAvailable: true, minLevel: 26, maxLevel: 71); // Bio II
+                        StatusMonitorConfigDisplay(1895, 30, alwaysAvailable: true, minLevel: 72); // Biolysis
                         break;
                     }
                 case 30: {
@@ -156,7 +157,7 @@ namespace RemindMe {
                         StatusMonitorConfigDisplay(1972, 10, selfOnly: true); // Delirium
                         StatusMonitorConfigDisplay(1178, 7); // Blackest Night
 
-                        // TODO: Obtain Ability IDs (my DRK is too low level to use these)
+                        // TODO: Obtain Ability IDs
                         // StatusMonitorConfigDisplay(xxx, 15); // Dark Missionary
                         // StatusMonitorConfigDisplay(xxx, 24); // Living Shadow
 
@@ -165,18 +166,18 @@ namespace RemindMe {
                     }
                 case 33: {
                         // AST
-                        StatusMonitorConfigDisplay(838, 30); // Combust
-                        StatusMonitorConfigDisplay(843, 30); // Combust II
-                        StatusMonitorConfigDisplay(1881, 30); // Combust III
+                        StatusMonitorConfigDisplay(838, 30, alwaysAvailable: true, minLevel: 4, maxLevel: 45); // Combust
+                        StatusMonitorConfigDisplay(843, 30, alwaysAvailable: true, minLevel: 46, maxLevel: 71); // Combust II
+                        StatusMonitorConfigDisplay(1881, 30, alwaysAvailable: true, minLevel: 72); // Combust III
                         StatusMonitorConfigDisplay(835, 15, "Diurnal"); // Aspected Benific (Regen)
                         StatusMonitorConfigDisplay(836, 15, "Diurnal"); // Aspected Helios (Regen)
                         break;
                     }
                 case 34: {
                         // SAM
-                        StatusMonitorConfigDisplay(1228, 60); // Higanbana
-                        StatusMonitorConfigDisplay(1298, 40, selfOnly: true); // Jinpu
-                        StatusMonitorConfigDisplay(1299, 40, selfOnly: true); // Shifu
+                        StatusMonitorConfigDisplay(1228, 60, alwaysAvailable: true, minLevel: 30); // Higanbana
+                        StatusMonitorConfigDisplay(1298, 40, selfOnly: true, alwaysAvailable: true, minLevel: 4); // Jinpu
+                        StatusMonitorConfigDisplay(1299, 40, selfOnly: true, alwaysAvailable: true, minLevel: 18); // Shifu
                         break;
                     }
                 case 35:

@@ -70,6 +70,7 @@ namespace RemindMe.Config {
         public bool ShowCountdownReady = false;
         public bool ReverseCountdownSide = false;
         public bool StatusOnlyShowTargetName = false;
+        public bool NoMissingStatus = false;
 
         public bool OnlyInDungeon = false;
 
@@ -236,6 +237,7 @@ namespace RemindMe.Config {
             
             if ((DisplayType == 0 || DisplayType == 1) && ShowSkillName && ShowStatusEffectTarget && ImGui.Checkbox($"Only show target name on status effects##{this.Guid}", ref this.StatusOnlyShowTargetName)) mainConfig.Save();
             
+            if (ImGui.Checkbox($"Don't display missing permanent statuses##{this.Guid}", ref this.NoMissingStatus)) mainConfig.Save();
             if (ImGui.Checkbox($"Show Countdown##{this.Guid}", ref this.ShowCountdown)) mainConfig.Save();
             if (ShowCountdown) {
 

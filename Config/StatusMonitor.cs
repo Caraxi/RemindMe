@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using Dalamud.Game.ClientState.Actors.Types;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
@@ -12,12 +14,15 @@ namespace RemindMe.Config {
         public bool Stacking = false;
         public float MaxDuration = 30;
         public ushort LimitedZone = 0;
+        public bool AlwaysAvailable = false;
+        public byte MinLevel = byte.MinValue;
+        public byte MaxLevel = byte.MaxValue;
         public uint[] StatusList;
         [JsonIgnore] public Status StatusData { get; set; }
 
         public override bool Equals(object obj) {
             if (!(obj is StatusMonitor sm)) return false;
-            return sm.Status == this.Status && sm.ClassJob == this.ClassJob && sm.SelfOnly == this.SelfOnly && sm.IsRaid == this.IsRaid;
+            return sm.Status == this.Status && sm.ClassJob == this.ClassJob && sm.SelfOnly == this.SelfOnly && sm.IsRaid == this.IsRaid && sm.AlwaysAvailable == this.AlwaysAvailable && sm.MinLevel == this.MinLevel && sm.MaxLevel == this.MaxLevel;
         }
 
 

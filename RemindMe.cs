@@ -252,6 +252,8 @@ namespace RemindMe {
                     var localPlayerAsList = new List<Actor>() { PluginInterface.ClientState.LocalPlayer };
 
                     foreach (var sd in display.StatusMonitors.Where(sm => sm.ClassJob == PluginInterface.ClientState.LocalPlayer.ClassJob.Id)) {
+                        if (PluginInterface.ClientState.LocalPlayer.Level < sd.MinLevel || PluginInterface.ClientState.LocalPlayer.Level > sd.MaxLevel) continue;
+                        var showMissing = sd.AlwaysAvailable && !display.NoMissingStatus;
                         foreach (var sid in sd.StatusIDs) {
                             var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sid);
                             if (status == null) continue;
@@ -283,10 +285,28 @@ namespace RemindMe {
                                                 t.ClickParam = a;
                                             }
 
+                                            showMissing = false;
                                             timerList.Add(t);
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        if (showMissing) {
+                            var status = PluginInterface.Data.Excel.GetSheet<Status>().GetRow(sd.Status);
+                            if (status != null) {
+                                var t = new DisplayTimer {
+                                    TimerMax = 0,
+                                    TimerCurrent = (1 + generalStopwatch.ElapsedMilliseconds / 1000f),
+                                    FinishedColor = display.AbilityReadyColor,
+                                    ProgressColor = display.StatusEffectColor,
+                                    IconId = status.Icon,
+                                    Name = status.Name,
+                                    AllowCountdown = false,
+                                    StackCount = -1,
+                                };
+                                timerList.Add(t);
                             }
                         }
                     }

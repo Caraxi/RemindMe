@@ -165,11 +165,17 @@ namespace RemindMe
                 ImGui.Text($"({note})");
             }
 
-            if (selfOnly) {
-                var selfTextSize = ImGui.CalcTextSize("[SELF]");
+
+            var typeText = "";
+            if (statusMonitor.SelfOnly) typeText += "SELF";
+            if (statusMonitor.AlwaysAvailable && statusMonitor.SelfOnly) typeText += ",";
+            if (statusMonitor.AlwaysAvailable) typeText += "PERMA";
+            
+            if (!string.IsNullOrEmpty(typeText)) {
+                var typeTextSize = ImGui.CalcTextSize($"[{typeText}]");
                 ImGui.SameLine();
-                ImGui.SetCursorPosX(ImGui.GetColumnWidth() - selfTextSize.X);
-                ImGui.TextDisabled("[SELF]");
+                ImGui.SetCursorPosX(ImGui.GetColumnWidth() - typeTextSize.X);
+                ImGui.TextDisabled($"[{typeText}]");
             }
 
 
@@ -195,10 +201,10 @@ namespace RemindMe
             ImGui.Separator();
         }
         
-        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0, bool stacking = false) {
+        private void StatusMonitorConfigDisplay(uint statusId, float maxDuration, string note = null, bool raid = false, bool selfOnly = false, uint[] statusList = null, string forcedName = null, ushort limitedZone = 0, bool stacking = false, bool alwaysAvailable = false, byte minLevel = byte.MinValue, byte maxLevel = byte.MaxValue) {
             var status = pluginInterface.Data.GetExcelSheet<Status>().GetRow(statusId);
             if (status == null) return;
-            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone, Stacking = stacking};
+            var statusMonitor = new StatusMonitor {Status = status.RowId, ClassJob = pluginInterface.ClientState.LocalPlayer.ClassJob.Id, MaxDuration = maxDuration, SelfOnly = selfOnly, StatusList = statusList, IsRaid = raid, LimitedZone = limitedZone, Stacking = stacking, AlwaysAvailable = alwaysAvailable, MinLevel = minLevel, MaxLevel = maxLevel};
             StatusMonitorConfigDisplay(statusMonitor, status, forcedName, note);
         }
 
