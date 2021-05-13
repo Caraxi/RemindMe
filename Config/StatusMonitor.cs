@@ -5,9 +5,6 @@ using Newtonsoft.Json;
 
 namespace RemindMe.Config {
     public class StatusMonitor {
-        
-
-
         public uint ClassJob = 0;
         public uint Status;
         public bool SelfOnly = false;
