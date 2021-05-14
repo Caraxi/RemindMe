@@ -5,22 +5,28 @@ VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemindMe", "RemindMe.csproj", "{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFXIVClientStructs", "..\SimpleTweaksPlugin\lib\FFXIVClientStructs\FFXIVClientStructs.csproj", "{0AA6E424-F966-4982-870C-315C88BCD0CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFXIVClientInterface", "..\SimpleTweaksPlugin\FFXIVClientInterface\FFXIVClientInterface.csproj", "{D50DCAC2-6EA7-4FDE-93FB-24E4F2FA2693}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Debug|x64.ActiveCfg = Debug|x64
-		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Debug|x64.Build.0 = Debug|x64
 		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Release|x64.ActiveCfg = Release|x64
-		{30BFDEDC-627B-4D5F-92FB-7B957B16DA2A}.Release|x64.Build.0 = Release|x64
+		{0AA6E424-F966-4982-870C-315C88BCD0CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AA6E424-F966-4982-870C-315C88BCD0CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AA6E424-F966-4982-870C-315C88BCD0CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AA6E424-F966-4982-870C-315C88BCD0CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D50DCAC2-6EA7-4FDE-93FB-24E4F2FA2693}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D50DCAC2-6EA7-4FDE-93FB-24E4F2FA2693}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D50DCAC2-6EA7-4FDE-93FB-24E4F2FA2693}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D50DCAC2-6EA7-4FDE-93FB-24E4F2FA2693}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

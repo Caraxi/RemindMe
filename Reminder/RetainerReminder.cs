@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Dalamud.Hooking;
 using Dalamud.Plugin;
+using FFXIVClientInterface.Client.UI.Agent;
+using ImGuiNET;
 using Newtonsoft.Json;
 using RemindMe.Config;
 
@@ -20,7 +23,7 @@ namespace RemindMe.Reminder {
         }
         
         [StructLayout(LayoutKind.Sequential, Size = Retainer.Size + 12)]
-        public struct RetainerContainer {
+        public struct  RetainerContainer {
             public fixed byte Retainers[Retainer.Size * 10];
             public fixed byte DisplayOrder[10];
             public byte Ready;
@@ -50,6 +53,7 @@ namespace RemindMe.Reminder {
             if (!_isSetup) {
                 try {
                     _retainerContainer = (RetainerContainer*) pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("48 8B E9 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 74 4E");
+                    PluginLog.Log($"RetainerContainer: {(ulong)_retainerContainer:X} - {(ulong)&_retainerContainer->Ready:X}");
                     _retainers = (Retainer*) _retainerContainer->Retainers;
                 } catch (Exception ex) {
                     PluginLog.LogError(ex, "Failed to find retainer static address");
@@ -76,6 +80,18 @@ namespace RemindMe.Reminder {
 
         public override ushort GetIconID(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
             return 60; //60840;
+        }
+
+        public override bool HasClickHandle(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
+            if (_retainers == null || _retainerContainer == null) return false;
+            return _retainerContainer->Ready == 0;
+        }
+
+        public override void ClickHandler(RemindMe plugin, object param) {
+            if (_retainers == null || _retainerContainer == null) return;
+            if (_retainerContainer->Ready != 0) return;
+            var agent = RemindMe.Client.UiModule.AgentModule.GetAgent<AgentUnknown>();
+            ((delegate*<AgentUnknownStruct*, void*>) agent.Data->vfunc[2])(agent.Data);
         }
     }
 }

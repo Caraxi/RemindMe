@@ -3,7 +3,8 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <TargetFramework>net472</TargetFramework>
         <LangVersion>latest</LangVersion>
-        <Platforms>AnyCPU;x64</Platforms>
+        <Platforms>AnyCPU</Platforms>
+        <Configurations>Debug;Release</Configurations>
     </PropertyGroup>
     <PropertyGroup Label="Build">
         <OutputType>Library</OutputType>
@@ -17,13 +18,10 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Version>1.0.6.0</Version>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)'=='Release'">
-        <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
-        <Deterministic>true</Deterministic>
-    </PropertyGroup>
     <PropertyGroup>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <AssemblyName>RemindMeNoDeps</AssemblyName>
     </PropertyGroup>
 	<ItemGroup>
 		<Reference Include="Dalamud">
@@ -55,6 +53,17 @@
 			<HintPath>$(APPDATA)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
 		</Reference>
     </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SimpleTweaksPlugin\FFXIVClientInterface\FFXIVClientInterface.csproj" />
+	  <ProjectReference Include="..\SimpleTweaksPlugin\lib\FFXIVClientStructs\FFXIVClientStructs.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="ILMerge" Version="3.0.41" />
+	</ItemGroup>
+    <Target Name="ILMerge" AfterTargets="PostBuildEvent">
+        <!-- Merge and rename -->
+        <Exec Command="$(ILMergeConsolePath) /target:library /out:$(TargetDir)/../RemindMe.dll /log /lib:$(APPDATA)\XIVLauncher\addon\Hooks\dev $(TargetDir)RemindMeNoDeps.dll $(TargetDir)FFXIVClientStructs.dll $(TargetDir)FFXIVClientInterface.dll&#xD;&#xA;powershell -Command &quot;Remove-Item '$(TargetDir)\*.*';Move-Item '$(TargetDir)\..\RemindMe.*' -Destination '$(TargetDir)';&quot;" />
+    </Target>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release'">
         <Exec Command="powershell -Command &quot;New-Item -ItemType Directory -Force -Path '$(ProjectDir)Publish'; $a=Get-Item '$(TargetDir)RemindMe.dll'; $jsonTemplate=Get-Content '$(ProjectDir)\$(ProjectName).template.json' | ConvertFrom-Json; $jsonTemplate.AssemblyVersion=$a.VersionInfo.FileVersion; $jsonTemplate.Description = $jsonTemplate.Description -join '\n'; ($jsonTemplate | ConvertTo-Json).Replace('\\n','\n') | Out-File '$(ProjectDir)\Publish\$(ProjectName).json' -Encoding utf8;Compress-Archive -Path '$(ProjectDir)\Publish\$(ProjectName).json','$(TargetDir)\*' -DestinationPath '$(ProjectDir)Publish\latest.zip' -Force&quot;" />
     </Target>

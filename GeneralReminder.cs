@@ -34,5 +34,13 @@ namespace RemindMe {
             return obj != null && obj.GetType() == this.GetType();
         }
 
+        public virtual bool HasClickHandle(DalamudPluginInterface pluginInterface, RemindMe plugin, MonitorDisplay display) {
+            return false;
+        }
+        
+        public virtual void ClickHandler(RemindMe plugin, object param) {
+            
+        }
+
     }
 }

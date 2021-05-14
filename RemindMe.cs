@@ -8,7 +8,9 @@ using Dalamud.Game.ClientState.Actors.Types;
 using Dalamud.Game.ClientState.Actors.Types.NonPlayer;
 using Dalamud.Game.ClientState.Structs.JobGauge;
 using Dalamud.Game.Internal;
+using Dalamud.Hooking;
 using Dalamud.Plugin;
+using FFXIVClientInterface;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using RemindMe.Config;
@@ -41,6 +43,11 @@ namespace RemindMe {
         private uint* blueSpellBook;
         public uint[] BlueMagicSpellbook { get; } = new uint[24];
 
+        private delegate void* UpdateRetainerListDelegate(void* a);
+        private Hook<UpdateRetainerListDelegate> updateRetainerListHook;
+
+        public static ClientInterface Client;
+        
         public void Dispose() {
             PluginInterface.UiBuilder.OnOpenConfigUi -= OnOpenConfigUi;
             PluginInterface.UiBuilder.OnBuildUi -= this.BuildUI;
@@ -51,6 +58,9 @@ namespace RemindMe {
             OutOfCombatTimer.Stop();
             cacheTimer.Stop();
             RemoveCommands();
+            updateRetainerListHook?.Disable();
+            updateRetainerListHook?.Dispose();
+            Client.Dispose();
             PluginInterface.Dispose();
         }
 
@@ -99,9 +109,18 @@ namespace RemindMe {
             pluginInterface.ClientState.TerritoryChanged += TerritoryChanged;
             TerritoryChanged(this, pluginInterface.ClientState.TerritoryType);
 
+            updateRetainerListHook = new Hook<UpdateRetainerListDelegate>(pluginInterface.TargetModuleScanner.ScanText("40 53 48 83 EC 20 48 8B 01 48 8B D9 FF 50 20 84 C0 74 0F 48 8B 03 48 8B CB 48 83 C4 20 5B 48 FF 60 18 E8"), new UpdateRetainerListDelegate(UpdateRetainerListDetour));
+            updateRetainerListHook.Enable();
+
+            Client = new ClientInterface(pluginInterface.TargetModuleScanner, pluginInterface.Data);
+            
             SetupCommands();
         }
 
+        private void* UpdateRetainerListDetour(void* a) {
+            PluginLog.Log($"UpdateRetainerListDetour: {(ulong)a:X}");
+            return updateRetainerListHook.Original(a);
+        }
         private void TerritoryChanged(object sender, ushort e) {
             InPvP = PluginInterface.Data.GetExcelSheet<TerritoryType>().GetRow(e)?.IsPvpZone ?? false;
         }
@@ -332,7 +351,9 @@ namespace RemindMe {
                         ProgressColor = display.StatusEffectColor,
                         IconId = reminder.GetIconID(PluginInterface, this, display),
                         Name = reminder.GetText(PluginInterface, this, display),
-                        AllowCountdown = false
+                        AllowCountdown = false,
+                        ClickAction = reminder.HasClickHandle(PluginInterface, this, display) ? reminder.ClickHandler : null,
+                        ClickParam = null,
                     });
                 }
             }
@@ -351,9 +372,9 @@ namespace RemindMe {
                     var inCombat = PluginInterface.ClientState.Condition[ConditionFlag.InCombat];
 
                     if (inCombat && display.OnlyNotInCombat) continue;
-                    if (!inCombat && !display.KeepVisibleOutsideCombat) continue;
+                    if (!inCombat && !display.KeepVisibleOutsideCombat && display.OnlyInCombat) continue;
 
-                    if (!inCombat && display.KeepVisibleOutsideCombat) {
+                    if (!inCombat && display.KeepVisibleOutsideCombat && display.OnlyInCombat) {
                         if (OutOfCombatTimer.Elapsed.TotalSeconds > display.KeepVisibleOutsideCombatSeconds) {
                             continue;
                         }
