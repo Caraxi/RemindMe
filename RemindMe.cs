@@ -347,9 +347,10 @@ namespace RemindMe {
             if (PluginConfig.MonitorDisplays.Count == 0) return;
 
             foreach (var display in PluginConfig.MonitorDisplays.Values.Where(d => d.Enabled)) {
-                if (display.Locked && display.OnlyInCombat) {
+                if (display.Locked && (display.OnlyInCombat || display.OnlyNotInCombat)) {
                     var inCombat = PluginInterface.ClientState.Condition[ConditionFlag.InCombat];
 
+                    if (inCombat && display.OnlyNotInCombat) continue;
                     if (!inCombat && !display.KeepVisibleOutsideCombat) continue;
 
                     if (!inCombat && display.KeepVisibleOutsideCombat) {
@@ -360,6 +361,7 @@ namespace RemindMe {
                 }
 
                 if (display.Locked && display.OnlyInDungeon && !PluginInterface.ClientState.Condition[ConditionFlag.BoundByDuty]) continue;
+                if (display.Locked && display.OnlyNotInDungeon && PluginInterface.ClientState.Condition[ConditionFlag.BoundByDuty]) continue;
 
                 var flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar;
 

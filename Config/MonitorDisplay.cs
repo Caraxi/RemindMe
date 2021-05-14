@@ -60,6 +60,7 @@ namespace RemindMe.Config {
         public bool ReverseSideIcon = false;
 
         public bool OnlyInCombat = true;
+        public bool OnlyNotInCombat = false;
         public bool KeepVisibleOutsideCombat = false;
         public int KeepVisibleOutsideCombatSeconds = 15;
 
@@ -73,6 +74,7 @@ namespace RemindMe.Config {
         public bool NoMissingStatus = false;
 
         public bool OnlyInDungeon = false;
+        public bool OnlyNotInDungeon = false;
 
         public bool PulseReady = false;
         public float PulseSpeed = 1.0f;
@@ -156,8 +158,16 @@ namespace RemindMe.Config {
             ImGui.Separator();
             ImGui.Text("Display Options");
             ImGui.Separator();
-            if (ImGui.Checkbox($"Hide outside of combat##{this.Guid}", ref this.OnlyInCombat)) mainConfig.Save();
-
+            if (ImGui.Checkbox($"Hide outside of combat##{this.Guid}", ref this.OnlyInCombat)) {
+                this.OnlyNotInCombat = false;
+                mainConfig.Save();
+            }
+            ImGui.SameLine();
+            if (ImGui.Checkbox($"Hide when in combat##{this.Guid}", ref this.OnlyNotInCombat)) {
+                this.OnlyInCombat = false;
+                mainConfig.Save();
+            }
+            
             if (OnlyInCombat) {
                 ImGui.Indent(20);
                 if (ImGui.Checkbox($"Keep visible for###keepVisibleOutsideCombat{this.Guid}", ref this.KeepVisibleOutsideCombat)) mainConfig.Save();
@@ -171,7 +181,15 @@ namespace RemindMe.Config {
                 ImGui.Indent(-20);
             }
             
-            if (ImGui.Checkbox($"Only show inside dungeons##{this.Guid}", ref this.OnlyInDungeon)) mainConfig.Save();
+            if (ImGui.Checkbox($"Only show inside dungeons##{this.Guid}", ref this.OnlyInDungeon)) {
+                this.OnlyNotInDungeon = false;
+                mainConfig.Save();
+            }
+            ImGui.SameLine();
+            if (ImGui.Checkbox($"Only show outside dungeons##{this.Guid}", ref this.OnlyNotInDungeon)) {
+                this.OnlyInDungeon = false;
+                mainConfig.Save();
+            }
 
             if (ImGui.Checkbox($"Don't show complete cooldowns##{this.Guid}", ref this.OnlyShowCooldown)) {
                 OnlyShowReady = false;
